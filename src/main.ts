@@ -12,4 +12,6 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   </div>
 `
 
+console.log('hello world')
+
 
