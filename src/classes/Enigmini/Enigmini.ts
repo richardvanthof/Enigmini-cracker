@@ -8,53 +8,56 @@ export interface Pos {
 
 class Enigmini {
     // Types
-    keyMap: (string | string[])[][];
-    plugBoard?: number[][];
-    reflector?: number[][]
-    rotors?: Rotor[];
-
+    readonly keyMap: (string | string[])[][];
+    readonly plugBoard?: number[][];
+    readonly reflector?: number[][]
+    readonly rotors?: Rotor[];
 
     constructor(
         keyMap: (string | string[])[][],
         rotorsConfig: Rotor[],
         reflectorConfig?: number[][],
-        plugBoard?: number[][]
+        plugBoard?: number[][],
       ) {
+        // Validate inputs
+        if(!keyMap) {throw new Error('Keymap not defined')}
+        if(!rotorsConfig) {throw new Error('Rotors not defined')}
 
-        
-        this.keyMap = keyMap; //reverse rows to match axis-system from assignment.
+
+        this.keyMap = structuredClone(keyMap).reverse();
         this.plugBoard = plugBoard;
         this.rotors = rotorsConfig;
         this.reflector = reflectorConfig;
-        
-        if(!keyMap) {throw new Error('Keymap not defined')}
-        if(!rotorsConfig) {throw new Error('Rotors not defined')}
+
       }
 
-      getKeyMap() { return this.keyMap.reverse();};
-
       findCharacterPosition(char: string):Pos {   
-        const keyMap = this.getKeyMap()
+        const keyMap = this.keyMap;
         let normalizedPos;
+        let normalizedChar = char.toUpperCase();
+        // console.log(keyMap);
         // Loop trough each cell in the keymap
         keyMap.forEach((row, rowIndex) => {
           row.forEach((col, colIndex) => { 
-            const cell = keyMap[rowIndex][colIndex];
+
             // check if cell is an array
-            if(Array.isArray(cell)) {
+            if(Array.isArray(col)) {
               // if it is, check if it contains the target character.
-              if (cell.includes(char)) {
+              if (col.includes(normalizedChar)) {
+                // console.log({col, rowIndex, colIndex})
                 normalizedPos = {
+                  
                   // Position is normalized to start counting 
                   // from 1 instead of 0.
                   row: rowIndex + 1, 
                   col: colIndex + 1, 
-                  subIndex: cell.indexOf(char)
+                  subIndex: col.indexOf(normalizedChar)
                 }
               }
             } else {
               // if not, just check if the cell is the target character.
-              if(cell === char) {
+              if(col === normalizedChar) {
+                // console.log({col, rowIndex, colIndex})
                 // Position is normalized to start counting 
                 // from 1 instead of 0.
                 normalizedPos = {
@@ -67,7 +70,7 @@ class Enigmini {
         });
 
         if(!normalizedPos) {
-          throw new Error(`Character ${char} not found in keymap.`);
+          throw new Error(`Character ${normalizedChar} not found in keymap.`);
         }
 
         return normalizedPos;
