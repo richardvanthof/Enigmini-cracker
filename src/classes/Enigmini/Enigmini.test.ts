@@ -156,13 +156,25 @@ describe("Enigmini", () => {
         .toThrow('Input value not found!');
       });
     })
-  
-      // it('reflector translates values', () => {
-      //   const enigmini = new Enigmini(keymap, plugs, rotorConfig, reflector);
-      //   reflector.forEach(([input,target]) => {
-      //     expect(enigmini.reflect(input)).toBe(target)
-      //   })
-      // })
+
+    describe("encrypt digit", () => {
+      it("checks for valid input", () => {
+        const enigmini = new Enigmini(keymap, rotorConfig, reflector);
+        const error = 'No valid input value provided!';
+        expect(()=> enigmini.encryptDigit(null as any)).toThrow(error);
+        // @ts-expect-error - Testing for invalid input
+        expect(()=> enigmini.encryptDigit('1')).toThrow(error);
+      });
+
+      it("encrypts single digit", () => {
+        const enigmini = new Enigmini(keymap, rotorConfig, reflector);
+
+        // From the example text we know that D should be encrypted to K.
+        // The character D is located at row 4, K at row 2
+        expect(enigmini.encryptDigit(4)).toBe(2);
+      });
+
+    });
     
     // describe("encrypts", () => {
     //   const enigmini = new Enigmini(keymap, plugs, rotorConfig, reflector);

@@ -11,7 +11,7 @@ class Enigmini {
     readonly keyMap: (string | string[])[][];
     readonly plugBoard?: number[][];
     readonly reflector?: number[][]
-    readonly rotors?: Rotor[];
+    readonly rotors: Rotor[];
 
     constructor(
         keyMap: (string | string[])[][],
@@ -103,39 +103,62 @@ class Enigmini {
         if(index === -1) { throw new Error(`Value ${value} not found in map!`)}
         return map[index][1];
       }
+
+      encryptDigit = (number:number):number => {
+        if(!number || typeof(number) != 'number') {
+          throw new Error('No valid input value provided!')
+        }
+
+        let result = number;
+
+        // if plugboard is available && value is in plugbard: apply it.
+        const applyPlugBoard = (value:number):number => {
+          if(this.plugBoard && this.plugBoard.some((element) => {
+            // check if value is on index 0 of plugboard items
+            return element[0] === value 
+          })) {
+            // if value is in a plugboard, remap it.
+            return this.remapValue(value, this.plugBoard);
+          } else {
+            // if value is not in a plugboard, pass it through.
+            return value;
+          }
+        };
+        
+
+        // encryption pipeline
+        
+        // 1. apply plugboard
+        result = applyPlugBoard(result);  // apply plugboard
+        
+        // 2. apply rotors
+        this.rotors.forEach((rotor:Rotor) => {
+          result = rotor.getValue(result)
+        });
+
+        // 3. apply reflector
+        if(this.reflector) {
+          result = this.remapValue(result, this.reflector); // apply reflector
+        }
+
+        // 4. apply rotors in reverse order (without changing global rotor order)
+        for(let index = this.rotors.length - 1; index >= 0; index--) {
+          const rotor = this.rotors[index];
+          result = rotor.getValue(result)
+        }
+
+        // 5. apply plugboard
+        result = applyPlugBoard(result);  // apply plugboard
+        
+        // Update rotor counters
+        this.rotors.forEach((rotor:Rotor) => {
+          rotor.update()
+        });
+
+        //If available, apply plugboard
+        return result;
+      };
       
-      // reflect(value: number) {
-      //   if(!this.reflectorConfig) { throw new Error('Reflector config not found!')}
-      //   const index = this.reflectorConfig.findIndex((val) => value === val[0]);
-      //   const [input,output] = this.reflectorConfig[index]
-      //   return output;
-      // }
-      
-      // encryptCoordinate = (number:number):number => {
-      //   let encrypted = number;
-        
-      //   console.log(`\nInitial value:`, encrypted)
-        
-      //   // Encryption pipeline (rotors -> reflector -> rotors (reverse order))
-      //   const pipeline = [
-      //     ...this.rotors.map((rotor:Rotor) => (input:number) => rotor.getValue(input)),
-      //     (value: number) => this.reflect(value),
-      //     ...this.rotors.reverse().map((rotor:Rotor) => (input:number) => rotor.getValue(input)),
-      //   ]
-        
-      //   // Transport value through pipeline
-      //   pipeline.forEach((step, index) => {
-      //     encrypted = step(encrypted);
-      //     console.log(`Crypt step #${index}:`, encrypted)
-      //   })
-        
-      //   // update rotor counter and offset.
-      //   this.rotors.forEach((rotor, index) => {
-      //     console.log(`\nupdate rotor ${index}`)
-      //     rotor.update(false)
-      //   })
-      //   return encrypted;
-      // };
       
       // encrypt(plain: string) {
       //   // console.clear();
