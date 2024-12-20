@@ -143,7 +143,7 @@ class Enigmini {
         // 2. apply rotors
         this.rotors.forEach((rotor:Rotor, index) => {
           result = rotor.getValue(result)
-          debug && console.log({rotor: index, result})
+          debug && console.log({rotor: index+1, result})
         });
         
         // 3. apply reflector
@@ -156,13 +156,13 @@ class Enigmini {
         for(let index = this.rotors.length - 1; index >= 0; index--) {
           const rotor = this.rotors[index];
           result = rotor.getValue(result)
-          debug && console.log({rotor: index, result})
+          debug && console.log({rotor: index+1, result})
         }
         
-        // 5. apply plugboard
+        // 5. apply plugboard*
         // result = this.applyPlugBoard(result);
         
-        // AIVD: Bij opgave 14 zijn we vergeten te vermelden dat de leider van 
+        // *AIVD: Bij opgave 14 zijn we vergeten te vermelden dat de leider van 
         // het ontcijferingsteam van Piconesië ontdekte dat het stekkerbord 
         // verkeerd is geïmplementeerd en maar in één richting werkt. 
         // In de andere richting wordt het stekkerbord overgeslagen.
@@ -177,20 +177,15 @@ class Enigmini {
       
       
       encrypt(plain: string) {
-        // // console.clear();
-        // console.log(this.rotors)
+        
         // Normalize to UPPERCASE
         const normalizedPlain = plain.toUpperCase();
         
         let result = [];
         
-        // // DEBUG: transform object values to string.
-        // const objToStr = (obj:object) => Object.values(obj).join(",")
-        
         // Loop through each character of string
         for (let char of normalizedPlain) {
 
-          
           // Find the position (ROW, COLUMN, SUBSTRING?] 
           // of the character in the key map
           const pos: Pos = this.findCharacterPosition(char);
