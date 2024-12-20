@@ -120,10 +120,10 @@ describe("Enigmini", () => {
     
     })
   
-      // it("translate pos to char", () => {
-      //   const enigmini = new Enigmini(keymap, plugs, rotorConfig, reflector);
-      //   expect(enigmini.positionToChar({ row: 6, col: 6 })).toBe("X");
-      // });
+    it("translate pos to char", () => {
+      const enigmini = new Enigmini(keymap, rotorConfig, reflector);
+      expect(enigmini.positionToChar({ row: 6, col: 6 })).toBe("X");
+    });
   
       // it('reflector translates values', () => {
       //   const enigmini = new Enigmini(keymap, plugs, rotorConfig, reflector);

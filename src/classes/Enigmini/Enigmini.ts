@@ -76,27 +76,30 @@ class Enigmini {
         return normalizedPos;
       }
     
+      positionToChar(pos: Pos) {
+        const { row, col, subIndex } = pos;
+
+        // coordinates are normalized to start counting from 1 instead of 0.
+        // subtract one to get the correct index.
+        const char = this.keyMap[row - 1][col - 1];
+        
+        if(subIndex) {
+          return char[subIndex]
+        } else {
+          if(Array.isArray(char)) {
+            return char[0]
+          } else {
+            return char
+          }
+        }
+      }
+      
+      
       // reflect(value: number) {
       //   if(!this.reflectorConfig) { throw new Error('Reflector config not found!')}
       //   const index = this.reflectorConfig.findIndex((val) => value === val[0]);
       //   const [input,output] = this.reflectorConfig[index]
       //   return output;
-      // }
-      
-      // positionToChar(pos: Pos) {
-      //   const { row, col, subIndex } = pos;
-      //   const keyMap = this.keyMapNormalized
-      //   const char = this.keyMap[row - 1][col - 1];
-      //   if(subIndex) {
-      //     return char[subIndex]
-      //   } else {
-      //     if(Array.isArray(char)) {
-      //       return char[0]
-      //     } else {
-      //       return char
-      //     }
-      //   }
-      //   return ; //Minus one since to account that the cordinates start at 1 instead of zero.
       // }
       
       // encryptCoordinate = (number:number):number => {
