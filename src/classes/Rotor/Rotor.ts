@@ -29,23 +29,31 @@ class Rotor {
         }
     }
 
-    getIndex(index: number): number {
+
+    applyOffsetTo(index: number): number {
+        // subtracts offset from the index of the targeted list item.
+        // the rotor (aka the target values) are moving clockwise,
+        // therefore, from the perspective of the source values, they 
+        // are moving counter-clockwise (aka. in the negative direction).
+        // Thus we need to subtract the offset from the index.
+
         const mapLength = this.mapping.length;
         
-        // NORMALIZE OFFSET TO BE WITHIN [0, mapLength)
         // - First %: Handle offsets larger than mapLength
         // - mapLength: Make negative numbers positive
-        // - Second %: Ensure result is within [0, mapLength)
-        const normalizedOffset = ((this.offset % mapLength) + mapLength) % mapLength; // Handle negative offsets
+        // - Second %: Ensure result is within [0, mapLength])
+        const offset = ((this.offset % mapLength) + mapLength) % mapLength;;
         
-        // CALCULATE NEW INDEX WITH RAP AROUND
-        // - index - normalizedOffset: Shift by rotation amount
-        // - mapLength: Prevent negative results
-        // - mapLength: Wrap around to stay in bounds
-        let newIndex = (index - normalizedOffset + mapLength) % mapLength;
 
-
+        let newIndex = index - offset;
+        if(newIndex < 0) {
+            newIndex = mapLength + newIndex;
+        }
         return newIndex;
+    }
+
+    setOffset(offset: number): void {
+        this.offset = offset;
     }
     
     getValue(input:number):number {
@@ -54,7 +62,7 @@ class Rotor {
         if(index === -1) { throw new Error('Invalid input') }
         
         // Get rotated position
-        const adjustedIndex = this.getIndex(index);
+        const adjustedIndex = this.applyOffsetTo(index);
         
         // Get mapped value at rotated position
         const newVal = this.mapping[adjustedIndex][1];
