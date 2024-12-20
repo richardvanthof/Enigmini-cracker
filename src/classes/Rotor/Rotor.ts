@@ -18,15 +18,7 @@ class Rotor {
         this.mapping = mapping
     }
 
-    update(debug:boolean=false):void {
-        // Debug log
-        if(debug) {
-            console.log({
-            counter: this.counter,
-            thresh: this.thresh,
-            offset: this.offset
-            })
-        }
+    update():void {
         // Update counter
         this.counter++;
 
@@ -35,40 +27,29 @@ class Rotor {
             this.offset++
             if(this.offset === +0 || this.offset === -0) {this.offset = 0}
         }
-
-        //     // Calculate new offset
-        //     // If the offset will loop around if it becomes greater 
-        //     // than the mapping config length.
-        //     // Calculate new offset using modular arithmetic for wrapping
-        //     const mappingLength = this.mapping.length;
-        //     this.offset = (this.offset - 1 + mappingLength) % mappingLength;
-            
-        //     //Normalize -0 to 0
-        //     if(this.offset === -0 || this.offset === +0) {this.offset = 0}
-
-        // }
     }
 
-    getOffset(currentPair: number[]):number {
-        // remove all list looparounds
-        let corrected = this.offset % this.mapping.length
-        // check if final offset position is greater than the remainder of the list
-        const currentValueIndex = currentPair[0]
-        if(corrected >= currentValueIndex) {
-            return (this.mapping.length - (corrected - currentValueIndex)) * -1
-        } else {
-            return corrected * - 1
-        }
+    getIndex(index: number): number {
+        const mapLength = this.mapping.length;
+        const normalizedOffset = ((this.offset % mapLength) + mapLength) % mapLength; // Handle negative offsets
+        
+        // Calculate new index with wrap-around
+        let newIndex = (index - normalizedOffset + mapLength) % mapLength;
+        
+        return newIndex;
     }
-
+    
     getValue(input:number):number {
-        const index = this.mapping.findIndex(([source]) => source === input);
-        const adjustedIndex = index + this.offset;
+        
+        // Fetch input character from mapping
+        const index = this.mapping.findIndex(([source]) => source === input) || null;
+        
+        const adjustedIndex = this.getIndex(index);
         const newVal = this.mapping[adjustedIndex][1];
         // console.log(input, index, newVal)
         return newVal;
     }
-
+    
 }
 
 export default Rotor;
