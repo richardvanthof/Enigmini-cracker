@@ -184,15 +184,20 @@ describe("Enigmini", () => {
 
     });
     
-    describe("encrypts", () => {
+    describe("encryption/decryption", () => {
       const enigmini = new Enigmini(keymap, rotorConfig, reflector);
       
-      it("encrypt single character", () => {
-        expect(enigmini.encrypt('D')).toBe('K');
+      it("encrypt/decrypt single character", () => {
+        const plain = 'D';
+        const cypher = 'K';
+
+        expect(enigmini.encrypt(plain)).toBe(cypher); // Encrypt
+        expect(enigmini.encrypt(cypher)).toBe(plain); // Decrypt
       });
   
-      it("full scentence", () => {
-        expect(enigmini.encrypt(plain)).toBe(crypt);
+      it("encrypt/decrypt full scentence", () => {
+        expect(enigmini.encrypt(plain)).toBe(crypt); // Encrypt
+        expect(enigmini.encrypt(crypt)).toBe(plain); // Decrypt
       });
     })
 });
