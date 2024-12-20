@@ -121,6 +121,11 @@ class Enigmini {
         }
       };
 
+      private getRotorsInOrder(reverse: boolean = false): Rotor[] {
+        const indices = [...Array(this.rotors.length).keys()];
+        return (reverse ? indices.reverse() : indices).map(i => this.rotors[i]);
+      }
+
       encryptDigit = (number:number, debug?:boolean):number => {
         if(!number || typeof(number) != 'number') {throw new Error('No valid input value provided!')}
 
@@ -140,10 +145,10 @@ class Enigmini {
         // 1. apply plugboard
         result = this.applyPlugBoard(result);  // apply plugboard
         
-        // 2. apply rotors
-        this.rotors.forEach((rotor:Rotor, index) => {
-          result = rotor.getValue(result)
-          debug && console.log({rotor: index+1, result})
+        // 2. Rotors forward
+        this.getRotorsInOrder().forEach((rotor, index) => {
+          result = rotor.getValue(result);
+          debug && console.log({rotor: index, result});
         });
         
         // 3. apply reflector
@@ -152,12 +157,11 @@ class Enigmini {
           debug && console.log({reflector: result})
         }
         
-        // 4. apply rotors in reverse order (without changing global rotor order)
-        for(let index = this.rotors.length - 1; index >= 0; index--) {
-          const rotor = this.rotors[index];
-          result = rotor.getValue(result)
-          debug && console.log({rotor: index+1, result})
-        }
+        // 4. Rotors backward
+        this.getRotorsInOrder(true).forEach((rotor, index) => {
+          result = rotor.getValue(result);
+          debug && console.log({rotor: index, result});
+        });
         
         // 5. apply plugboard*
         // result = this.applyPlugBoard(result);
