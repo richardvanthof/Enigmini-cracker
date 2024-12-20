@@ -104,98 +104,114 @@ class Enigmini {
         return map[index][1];
       }
 
-      encryptDigit = (number:number):number => {
-        if(!number || typeof(number) != 'number') {
-          throw new Error('No valid input value provided!')
+    
+      // if plugboard is available && value is in plugbard: apply it.
+      applyPlugBoard = (value:number):number => {
+        if(this.plugBoard && this.plugBoard.some((element) => {
+          // check if value is on index 0 of plugboard items
+          return element[0] === value 
+        })) {
+          // if value is in a plugboard, remap it.
+          const result = this.remapValue(value, this.plugBoard);
+          console.log({plugboard: result})
+          return result;
+        } else {
+          // if value is not in a plugboard, pass it through.
+          return value;
         }
+      };
 
+      encryptDigit = (number:number, debug?:boolean):number => {
+        if(!number || typeof(number) != 'number') {throw new Error('No valid input value provided!')}
+
+        debug && console.log('\nROTOR SETTINGS FOR THIS CYCLE')
+        this.rotors.forEach((rotor:Rotor) => {
+
+          debug && console.log({
+            counter: rotor.counter, 
+            offset: rotor.offset, 
+            thresh: rotor.thresh})
+        });
+        debug && console.log('\nENCODING CYCLE')
         let result = number;
-
-        // if plugboard is available && value is in plugbard: apply it.
-        const applyPlugBoard = (value:number):number => {
-          if(this.plugBoard && this.plugBoard.some((element) => {
-            // check if value is on index 0 of plugboard items
-            return element[0] === value 
-          })) {
-            // if value is in a plugboard, remap it.
-            return this.remapValue(value, this.plugBoard);
-          } else {
-            // if value is not in a plugboard, pass it through.
-            return value;
-          }
-        };
-        
-
+        debug && console.log({input: result})
         // encryption pipeline
         
         // 1. apply plugboard
-        result = applyPlugBoard(result);  // apply plugboard
+        result = this.applyPlugBoard(result);  // apply plugboard
         
         // 2. apply rotors
-        this.rotors.forEach((rotor:Rotor) => {
+        this.rotors.forEach((rotor:Rotor, index) => {
           result = rotor.getValue(result)
+          debug && console.log({rotor: index, result})
         });
-
+        
         // 3. apply reflector
         if(this.reflector) {
           result = this.remapValue(result, this.reflector); // apply reflector
+          debug && console.log({reflector: result})
         }
-
+        
         // 4. apply rotors in reverse order (without changing global rotor order)
         for(let index = this.rotors.length - 1; index >= 0; index--) {
           const rotor = this.rotors[index];
           result = rotor.getValue(result)
+          debug && console.log({rotor: index, result})
         }
-
+        
         // 5. apply plugboard
-        result = applyPlugBoard(result);  // apply plugboard
+        // result = this.applyPlugBoard(result);
+        
+        // AIVD: Bij opgave 14 zijn we vergeten te vermelden dat de leider van 
+        // het ontcijferingsteam van Piconesië ontdekte dat het stekkerbord 
+        // verkeerd is geïmplementeerd en maar in één richting werkt. 
+        // In de andere richting wordt het stekkerbord overgeslagen.
+        
         
         // Update rotor counters
-        this.rotors.forEach((rotor:Rotor) => {
-          rotor.update()
-        });
-
+        this.rotors.forEach((rotor:Rotor) => rotor.update());
+        
         //If available, apply plugboard
         return result;
       };
       
       
-      // encrypt(plain: string) {
-      //   // console.clear();
-      //   console.log(this.rotors)
-      //   // Normalize to UPPERCASE
-      //   const normalizedPlain = plain.toUpperCase();
+      encrypt(plain: string) {
+        // // console.clear();
+        // console.log(this.rotors)
+        // Normalize to UPPERCASE
+        const normalizedPlain = plain.toUpperCase();
         
-      //   let crypt = [];
+        let result = [];
         
-      //   // DEBUG: transform object values to string.
-      //   const objToStr = (obj:object) => Object.values(obj).join(",")
+        // // DEBUG: transform object values to string.
+        // const objToStr = (obj:object) => Object.values(obj).join(",")
         
-      //   // Loop through each character of string
-      //   for (let char of normalizedPlain) {
-      //     console.log('\n\nchar', char)
+        // Loop through each character of string
+        for (let char of normalizedPlain) {
+
           
-      //     // Find the position (ROW, COLUMN, SUBSTRING?] of the character in the key map
-      //     let pos: Pos = this.findCharacterPosition(char);
-      //     console.log('char pos [R,C,sS]:', objToStr(pos))
+          // Find the position (ROW, COLUMN, SUBSTRING?] 
+          // of the character in the key map
+          const pos: Pos = this.findCharacterPosition(char);
           
-      //     // Encrypt each coordinate
-      //     const encryptedPos = {
-      //       ...pos,
-      //       row: this.encryptCoordinate(pos.row),
-      //       col: this.encryptCoordinate(pos.col)
-      //     }
+          // Encrypt each coordinate
+          const encryptedPos = {
+            ...pos,
+            row: this.encryptDigit(pos.row),
+            col: this.encryptDigit(pos.col)
+          }
+
+          // Transform coordinate to character
+          const encryptedChar = this.positionToChar(encryptedPos);
           
-      //     // Transform coordinate to character
-      //     const encryptedChar = this.positionToChar(encryptedPos);
-          
-      //     // Add encrypted character to cypher text.
-      //     crypt.push(encryptedChar);
-      //   }
+          // Add encrypted character to cypher text.
+          result.push(encryptedChar);
+        }
     
-      //   // Return the encrypted text
-      //   return crypt.join("");
-      // }
+        // Return the encrypted text
+        return result.join("");
+      }
 }
 
 export default Enigmini;

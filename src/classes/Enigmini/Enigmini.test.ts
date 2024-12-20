@@ -43,6 +43,7 @@ const rotor2 = new Rotor([
   [5, 2],
   [6, 4]
 ], 6);
+
 const rotorConfig = [rotor1, rotor2];
 
 const plain = "DEZE VOORBEELDTEKST IS VERCIJFERD MET DE ENIGMINI!";
@@ -51,7 +52,7 @@ const crypt = "KRY8D1D37CRLE9NS906LJ4D1KVT2ZDL4KHU86LF8D5AC1OYMJE";
 
 describe("Enigmini", () => {
 
-  describe("Init Enigmini", () => {
+  describe("Constructor validation", () => {
     it("creates instance", () => {
       const enigmini = new Enigmini(keymap, rotorConfig, reflector);
       expect(enigmini).toBeInstanceOf(Enigmini);
@@ -157,7 +158,7 @@ describe("Enigmini", () => {
       });
     })
 
-    describe("encrypt digit", () => {
+    describe("encrypt single digits", () => {
       it("checks for valid input", () => {
         const enigmini = new Enigmini(keymap, rotorConfig, reflector);
         const error = 'No valid input value provided!';
@@ -165,26 +166,33 @@ describe("Enigmini", () => {
         // @ts-expect-error - Testing for invalid input
         expect(()=> enigmini.encryptDigit('1')).toThrow(error);
       });
-
-      it("encrypts single digit", () => {
-        const enigmini = new Enigmini(keymap, rotorConfig, reflector);
-
+      
+      const enigmini = new Enigmini(keymap, rotorConfig, reflector);
+      
+      it("encrypt row digit", () => {
         // From the example text we know that D should be encrypted to K.
         // The character D is located at row 4, K at row 2
-        expect(enigmini.encryptDigit(4)).toBe(2);
+        expect(enigmini.encryptDigit(4, true)).toBe(2);
+        
+      });
+
+      it("encrypt col digit", () => {
+        
+        // The character D is located at col 6, K at col 2
+        expect(enigmini.encryptDigit(6, true)).toBe(2);
       });
 
     });
     
-    // describe("encrypts", () => {
-    //   const enigmini = new Enigmini(keymap, plugs, rotorConfig, reflector);
+    describe("encrypts", () => {
+      const enigmini = new Enigmini(keymap, rotorConfig, reflector);
       
-    //   // it("one characer", () => {
-    //   //   expect(enigmini.encrypt('D')).toBe('K');
-    //   // });
+      it("encrypt single character", () => {
+        expect(enigmini.encrypt('D')).toBe('K');
+      });
   
-    //   // it("full scentence", () => {
-    //   //   expect(enigmini.encrypt(plain)).toBe(crypt);
-    //   // });
-    // })
+      it("full scentence", () => {
+        expect(enigmini.encrypt(plain)).toBe(crypt);
+      });
+    })
 });
