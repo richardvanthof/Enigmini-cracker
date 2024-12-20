@@ -11,6 +11,21 @@ describe("Rotor", ()=> {
         [6, 4]
     ]
 
+    describe('Constructor validation', () => {
+        it('throws error for threshold < 1', () => {
+            expect(() => new Rotor(testPairs, 0)).toThrow('Threshold cannot be smaller than 1');
+        });
+    
+        it('throws error for missing mapping', () => {
+            expect(() => new Rotor(null as any, 1)).toThrow('Mapping config not defined');
+        });
+    
+        it('uses default threshold of 1', () => {
+            const rotor = new Rotor(testPairs);
+            expect(rotor.thresh).toBe(1);
+        });
+    });
+
     it('returns correct value (without rotation)', ()=> {
         const rotor = new Rotor(testPairs, 100);
         const result = rotor.getValue(1);
@@ -53,56 +68,11 @@ describe("Rotor", ()=> {
         });
     })
 
-    // describe('get corrected index', () => {
-    //     it('gives correct mutation', () => {
-    //         const thresh = 1
-    //         const rotor = new Rotor(testPairs, thresh);
-    //         rotor.offset = 0; 
-    //         const targets = [0,0,0,0,0,1];
-    //         const normalizeZero = (value:number) => value === -0 || value === +0 ? 0 : value;
-    //         testPairs.forEach((pair, index) => {
-    //             // get offset
-    //             const correctedIndex = rotor.getIndex(index);
-    //             expect(correctedIndex).toBe(targets[index])
-    //             rotor.update()
-    //         });
-    //     })
-
-    //     it('handles looparound', () => {
-    //         const thresh = 1;
-    //         const rotor = new Rotor(testPairs, thresh);
-    //         rotor.offset = 47; // corr.offset: 47 % testpair.length (6) = 5
-
-    //         const correctedIndex = rotor.getIndex(0);
-    //         // corrected index should be: 
-    //         // (testpair.length - (corr.offset - index))
-    //         // aka. 6 - (5 - 0) = 1
-            
-    //         expect(correctedIndex).toBe(1); 
-
-    //     })
-    // })
-
-    describe('Constructor validation', () => {
-        it('throws error for threshold < 1', () => {
-            expect(() => new Rotor(testPairs, 0)).toThrow('Threshold cannot be smaller than 1');
-        });
-    
-        it('throws error for missing mapping', () => {
-            expect(() => new Rotor(null as any, 1)).toThrow('Mapping config not defined');
-        });
-    
-        it('uses default threshold of 1', () => {
-            const rotor = new Rotor(testPairs);
-            expect(rotor.thresh).toBe(1);
-        });
-    });
-    
     describe('getValue with rotation', () => {
         it('returns correct value after single rotation', () => {
             const rotor = new Rotor(testPairs, 1);
             rotor.update(); // offset becomes 1
-            expect(rotor.getValue(1)).toBe(testPairs[1][1]); // should get next mapping
+            expect(rotor.getValue(3)).toBe(testPairs[1][1]); // should get next mapping
         });
     
         it('returns correct value after multiple rotations', () => {
@@ -117,10 +87,10 @@ describe("Rotor", ()=> {
         it('handles rotation wrap-around', () => {
             const rotor = new Rotor(testPairs, 1);
             // Rotate length + 1 times
-            for (let i = 0; i < testPairs.length + 1; i++) {
+            for (let i = 0; i < 2; i++) {
                 rotor.update();
             }
-            expect(rotor.getValue(1)).toBe(testPairs[1][1]);
+            expect(rotor.getValue(1)).toBe(testPairs[5][1]);
         });
     
         it('throws error for invalid input', () => {

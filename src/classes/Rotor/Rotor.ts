@@ -31,22 +31,33 @@ class Rotor {
 
     getIndex(index: number): number {
         const mapLength = this.mapping.length;
+        
+        // NORMALIZE OFFSET TO BE WITHIN [0, mapLength)
+        // - First %: Handle offsets larger than mapLength
+        // - mapLength: Make negative numbers positive
+        // - Second %: Ensure result is within [0, mapLength)
         const normalizedOffset = ((this.offset % mapLength) + mapLength) % mapLength; // Handle negative offsets
         
-        // Calculate new index with wrap-around
+        // CALCULATE NEW INDEX WITH RAP AROUND
+        // - index - normalizedOffset: Shift by rotation amount
+        // - mapLength: Prevent negative results
+        // - mapLength: Wrap around to stay in bounds
         let newIndex = (index - normalizedOffset + mapLength) % mapLength;
-        
+
+
         return newIndex;
     }
     
     getValue(input:number):number {
+        // Find input position in mapping
+        const index = this.mapping.findIndex(([source]) => source === input);
+        if(index === -1) { throw new Error('Invalid input') }
         
-        // Fetch input character from mapping
-        const index = this.mapping.findIndex(([source]) => source === input) || null;
-        
+        // Get rotated position
         const adjustedIndex = this.getIndex(index);
+        
+        // Get mapped value at rotated position
         const newVal = this.mapping[adjustedIndex][1];
-        // console.log(input, index, newVal)
         return newVal;
     }
     
