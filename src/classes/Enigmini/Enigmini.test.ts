@@ -124,6 +124,38 @@ describe("Enigmini", () => {
       const enigmini = new Enigmini(keymap, rotorConfig, reflector);
       expect(enigmini.positionToChar({ row: 6, col: 6 })).toBe("X");
     });
+
+    describe("remap value", () => {
+      it("remaps value", () => {
+        const enigmini = new Enigmini(keymap, rotorConfig, reflector);
+        const result = enigmini.remapValue(1, reflector);
+        expect(result).toBe(5);
+      });
+
+      it("throws error for unknown character", () => {
+        const target = 999;
+        const enigmini:Enigmini = new Enigmini(keymap, rotorConfig, reflector);
+        expect(()=>enigmini.remapValue(target, reflector))
+        .toThrow(`Value ${target} not found in map!`);
+      });
+
+      it("throws error for undefined map", () => {
+        const target = 1;
+        const enigmini:Enigmini = new Enigmini(keymap, rotorConfig, reflector);
+
+        // remap config is undefined
+        expect(()=>enigmini.remapValue(target, null as any))
+        .toThrow('Remap config not found!');
+      });
+
+      it("throws error for undefined input value", () => {
+        const enigmini:Enigmini = new Enigmini(keymap, rotorConfig, reflector);
+
+        // input value is undefined
+        expect(()=>enigmini.remapValue(null as any, reflector)) 
+        .toThrow('Input value not found!');
+      });
+    })
   
       // it('reflector translates values', () => {
       //   const enigmini = new Enigmini(keymap, plugs, rotorConfig, reflector);

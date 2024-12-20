@@ -94,6 +94,15 @@ class Enigmini {
         }
       }
       
+      remapValue(value: number|string, map:number[][]):number {
+        // Input validation
+        if(!map) { throw new Error('Remap config not found!')}
+        if(!value) { throw new Error('Input value not found!')}
+
+        const index = map.findIndex((val) => value === val[0]);
+        if(index === -1) { throw new Error(`Value ${value} not found in map!`)}
+        return map[index][1];
+      }
       
       // reflect(value: number) {
       //   if(!this.reflectorConfig) { throw new Error('Reflector config not found!')}
