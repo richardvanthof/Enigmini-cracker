@@ -1,5 +1,11 @@
 import type Rotor from "../Rotor/Rotor"
 
+export interface Pos {
+  row: number,
+  col: number,
+  subIndex?: number
+}
+
 class Enigmini {
     // Types
     keyMap: (string | string[])[][];
@@ -12,7 +18,7 @@ class Enigmini {
         keyMap: (string | string[])[][],
         rotorsConfig: Rotor[],
         reflectorConfig?: number[][],
-        plugBoard?: number[][],
+        plugBoard?: number[][]
       ) {
 
         
@@ -25,31 +31,47 @@ class Enigmini {
         if(!rotorsConfig) {throw new Error('Rotors not defined')}
       }
 
-      // findCharacterPosition(char: string):Pos {        
-      //   if(!this.keyMap) {throw new Error('Key map undefined!')}
-      //   this.keyMap.forEach((row, rowIndex) => {
-      //     row.forEach((col, colIndex) => {
-      //       const cell = this.keyMap[rowIndex][colIndex];
-      //       const normalizedPos = {
-      //         row: row + 1,
-      //         col: col + 1
-      //       };
-            
-      //       // Check if the selected cell has multiple items.
-      //       if (Array.isArray(cell)) {
-      //         // 
-      //         if (cell.includes(char)) {
-      //           return { ...normalizedPos, subIndex: cell.indexOf(char) }; // Include the index if the cell is an array
-      //         }
-      //       } else {
-      //         // Otherwise, just check if it's the character
-      //         if (cell === char) {
-      //           return normalizedPos;
-      //         }
-      //       }
-      //     })
-      //   })
-      // }
+      getKeyMap() { return this.keyMap.reverse();};
+
+      findCharacterPosition(char: string):Pos {   
+        const keyMap = this.getKeyMap()
+        let normalizedPos;
+        // Loop trough each cell in the keymap
+        keyMap.forEach((row, rowIndex) => {
+          row.forEach((col, colIndex) => { 
+            const cell = keyMap[rowIndex][colIndex];
+            // check if cell is an array
+            if(Array.isArray(cell)) {
+              // if it is, check if it contains the target character.
+              if (cell.includes(char)) {
+                normalizedPos = {
+                  // Position is normalized to start counting 
+                  // from 1 instead of 0.
+                  row: rowIndex + 1, 
+                  col: colIndex + 1, 
+                  subIndex: cell.indexOf(char)
+                }
+              }
+            } else {
+              // if not, just check if the cell is the target character.
+              if(cell === char) {
+                // Position is normalized to start counting 
+                // from 1 instead of 0.
+                normalizedPos = {
+                  row: rowIndex + 1, 
+                  col: colIndex + 1
+                }
+              } 
+            }
+          })
+        });
+
+        if(!normalizedPos) {
+          throw new Error(`Character ${char} not found in keymap.`);
+        }
+
+        return normalizedPos;
+      }
     
       // reflect(value: number) {
       //   if(!this.reflectorConfig) { throw new Error('Reflector config not found!')}

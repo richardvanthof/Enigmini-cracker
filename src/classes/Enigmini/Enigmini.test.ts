@@ -1,5 +1,6 @@
 import {describe, expect, it} from 'vitest';
 import Enigmini from './Enigmini';
+import type {Pos} from './Enigmini';
 import Rotor from '../Rotor/Rotor';
 
 
@@ -65,37 +66,50 @@ describe("Enigmini", () => {
     });
 
   });
+
+  it("returns normalized keymap", () => {
+    const enigmini = new Enigmini(keymap, rotorConfig, reflector);
+    expect(enigmini.getKeyMap()).toEqual(keymap.reverse());
+  });
     
-    // describe("char to pos", () => {
+    describe("char to pos", () => {
    
-    //   it("handles single char", () => {
-    //     console.log('handles single char')
-    //     const enigmini = new Enigmini(keymap, plugs, rotorConfig, reflector);
-    //     expect(enigmini.findCharacterPosition("A")).toEqual({ row: 4, col: 4 });
-    //   });
+      it("handles single char", () => {
+        console.log('handles single char')
+        const enigmini:Enigmini = new Enigmini(keymap, rotorConfig, reflector);
+        const charPos:Pos = enigmini.findCharacterPosition("K")
+        expect(charPos).toEqual({ row: 2, col: 2 });
+      });
+
+      it("throws error for unknown character", () => {
+        console.log('handles single char')
+        const target = '@';
+        const enigmini:Enigmini = new Enigmini(keymap, rotorConfig, reflector);
+        expect(()=>enigmini.findCharacterPosition(target)).toThrow(`Character ${target} not found in keymap.`);
+      });
       
-    //   it("handles multiple chars", () => {
-    //     const enigmini = new Enigmini(keymap, plugs, rotorConfig, reflector);
-    //     let allCryptPos = [];
-    //     const target=[{row:4,col:6},{row:3,col:4},{row:4,col:2},{row:3,col:4},{row:2,col:4,subIndex:1},{row:1,col:6},{row:6,col:1},{row:6,col:1},{row:4,col:3},{row:1,col:3},{row:3,col:4},{row:3,col:4},{row:5,col:3},{row:4,col:6},{row:5,col:6},{row:3,col:4},{row:2,col:2},{row:6,col:5},{row:5,col:6},{row:2,col:4,subIndex:1},{row:5,col:1},{row:6,col:5},{row:2,col:4,subIndex:1},{row:1,col:6},{row:3,col:4},{row:4,col:3},{row:6,col:4},{row:5,col:1},{row:3,col:6},{row:2,col:1},{row:3,col:4},{row:4,col:3},{row:4,col:6},{row:2,col:4,subIndex:1},{row:1,col:5},{row:3,col:4},{row:5,col:6},{row:2,col:4,subIndex:1},{row:4,col:6},{row:3,col:4},{row:2,col:4,subIndex:1},{row:3,col:4},{row:6,col:2},{row:5,col:1},{row:5,col:2},{row:1,col:5},{row:5,col:1},{row:6,col:2},{row:5,col:1},{row:6,col:3,subIndex:1}];
+      // it("handles multiple chars", () => {
+      //   const enigmini = new Enigmini(keymap, plugs, rotorConfig, reflector);
+      //   let allCryptPos = [];
+      //   const target=[{row:4,col:6},{row:3,col:4},{row:4,col:2},{row:3,col:4},{row:2,col:4,subIndex:1},{row:1,col:6},{row:6,col:1},{row:6,col:1},{row:4,col:3},{row:1,col:3},{row:3,col:4},{row:3,col:4},{row:5,col:3},{row:4,col:6},{row:5,col:6},{row:3,col:4},{row:2,col:2},{row:6,col:5},{row:5,col:6},{row:2,col:4,subIndex:1},{row:5,col:1},{row:6,col:5},{row:2,col:4,subIndex:1},{row:1,col:6},{row:3,col:4},{row:4,col:3},{row:6,col:4},{row:5,col:1},{row:3,col:6},{row:2,col:1},{row:3,col:4},{row:4,col:3},{row:4,col:6},{row:2,col:4,subIndex:1},{row:1,col:5},{row:3,col:4},{row:5,col:6},{row:2,col:4,subIndex:1},{row:4,col:6},{row:3,col:4},{row:2,col:4,subIndex:1},{row:3,col:4},{row:6,col:2},{row:5,col:1},{row:5,col:2},{row:1,col:5},{row:5,col:1},{row:6,col:2},{row:5,col:1},{row:6,col:3,subIndex:1}];
   
-    //     for (let char of plain) {
-    //       const cryptPos = enigmini.findCharacterPosition(char);
-    //       allCryptPos.push(cryptPos);
-    //     }
-    //     expect(allCryptPos).toEqual(target);
-    //   });
+      //   for (let char of plain) {
+      //     const cryptPos = enigmini.findCharacterPosition(char);
+      //     allCryptPos.push(cryptPos);
+      //   }
+      //   expect(allCryptPos).toEqual(target);
+      // });
   
-    //   it("handles special characters", () => {
-    //     const enigmini = new Enigmini(keymap, plugs, rotorConfig, reflector);
-    //     expect(enigmini.findCharacterPosition(";")).toEqual({
-    //       row: 1,
-    //       col: 1,
-    //       subIndex: 1
-    //     });
-    //   });
+      // it("handles special characters", () => {
+      //   const enigmini = new Enigmini(keymap, plugs, rotorConfig, reflector);
+      //   expect(enigmini.findCharacterPosition(";")).toEqual({
+      //     row: 1,
+      //     col: 1,
+      //     subIndex: 1
+      //   });
+      // });
     
-    // })
+    })
   
       // it("translate pos to char", () => {
       //   const enigmini = new Enigmini(keymap, plugs, rotorConfig, reflector);
