@@ -25,27 +25,35 @@ class Rotor {
         // Check if counter passes the rotate threshold
         if (this.counter % this.thresh === 0 || this.thresh === 1) {
             this.offset++
-            if(this.offset === +0 || this.offset === -0) {this.offset = 0}
+            if(this.offset == +0 || this.offset == -0) {this.offset = 0}
         }
     }
 
-    applyOffsetTo(index: number): number {
-        // subtracts offset from the index of the targeted list item.
-        // the rotor (aka the target values) are moving clockwise,
-        // therefore, from the perspective of the source values, they 
-        // are moving counter-clockwise (aka. in the negative direction).
-        // Thus we need to subtract the offset from the index.
+    applyOffsetTo(index: number, direction: 'FORWARD' | 'REVERSE' = 'FORWARD'): number {
 
         const mapLength = this.mapping.length;
         
+        // Loop around the list a couple of times if the offset is longer than the list length.
         const offset = ((this.offset % mapLength) + mapLength) % mapLength;;
         // - First %: Handle offsets larger than mapLength
         // - mapLength: Make negative numbers positive
         // - Second %: Ensure result is within [0, mapLength])
-
-        let newIndex = index - offset;
-        if(newIndex < 0) {
-            newIndex = mapLength + newIndex;
+        
+        let newIndex;
+        if(direction === 'FORWARD') {
+            // If direction is FORWARD: subtract offset from index
+            newIndex = index - offset;
+            if(newIndex < 0) {
+                newIndex = mapLength + newIndex;
+            }
+        } else {
+            // If direction is REVERSE: add offset to index
+            // This is because when going in reverse, we need to compensate
+            // for the counter-clockwise movement in the opposite direction
+            newIndex = index + offset;
+            if(newIndex >= mapLength - 1) {
+                newIndex = mapLength - newIndex;
+            }
         }
         return newIndex;
     }
@@ -54,12 +62,12 @@ class Rotor {
         this.offset = offset;
     }
     
-    getValue(input:number, mode: 'FORWARD' | 'REVERSE' = 'FORWARD'):number {
+    getValue(input:number, direction: 'FORWARD' | 'REVERSE' = 'FORWARD'):number {
         // Find the entry in the list of coupled numbers.
-        // mode === forward: check against the input value.
-        // mode === reverse: check against the output value 
+        // direction === forward: check against the input value.
+        // direction === reverse: check against the output value 
         const index = this.mapping.findIndex(([source, target]) => {
-            const currentVal = mode === 'FORWARD' ? source : target;
+            const currentVal = direction === 'FORWARD' ? source : target;
             return input === currentVal;
         });
         
@@ -70,7 +78,7 @@ class Rotor {
         const adjustedIndex = this.applyOffsetTo(index);
         
         // Get mapped value at rotated position
-        const newVal = this.mapping[adjustedIndex][mode === 'REVERSE' ? 0 : 1];
+        const newVal = this.mapping[adjustedIndex][direction === 'REVERSE' ? 0 : 1];
         return newVal;
     }
 }

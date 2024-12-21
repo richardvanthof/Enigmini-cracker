@@ -63,53 +63,107 @@ describe("Rotor", ()=> {
     });
 
     describe(('apply offset to index'), () => {
-        it('shift index every cycle', () => {
-            const thresh = 1; // Per how many cycles should we rotate?
-            const index = 3; // Get 4th item in testlist
-            const rotor = new Rotor(testPairs, thresh);
-            rotor.update(); // increment offset to 1
-            const adjustedIndex = rotor.applyOffsetTo(index);
-            expect(adjustedIndex).toBe(2); // 3 - 1 = 2
+
+        describe('shift index every cycle', () => {
+            it('forward direction', () => {
+                const thresh = 1; // Per how many cycles should we rotate?
+                const index = 3; // Get 4th item in testlist
+                const rotor = new Rotor(testPairs, thresh);
+                rotor.update(); // increment offset to 1
+                const adjustedIndex = rotor.applyOffsetTo(index);
+                expect(adjustedIndex).toBe(2); // 3 - 1 = 2
+            });
+            it('reverse direction', () => {
+                const thresh = 1; // Per how many cycles should we rotate?
+                const index = 3; // Get 4th item in testlist
+                const rotor = new Rotor(testPairs, thresh);
+                rotor.update(); // increment offset to 1
+                const adjustedIndex = rotor.applyOffsetTo(index,'REVERSE');
+                expect(adjustedIndex).toBe(4); // 3 + 1 = 4
+            })
         })
 
-        it('shift index on the 6th cycle', () => {
-            const thresh = 6; // Per how many cycles should we rotate?
-            const index = 3; // Get 4th item in testlist
-            const rotor = new Rotor(testPairs, thresh);
-            
-            let adjustedIndex;
-            
-            for(let cycle = 0; cycle < 6; cycle++) {
-                // for the first 5 cycles the offset should be 0
-                // aka the index should be the same (aka. 3)
+        describe('shift index on the 6th cycle', () => {
+            it('forward direction', () => {
+                const thresh = 6; // Per how many cycles should we rotate?
+                const index = 3; // Get 4th item in testlist
+                const rotor = new Rotor(testPairs, thresh);
                 
-                // Apply offset to index
+                let adjustedIndex;
+                
+                for(let cycle = 0; cycle < 6; cycle++) {
+                    // for the first 5 cycles the offset should be 0
+                    // aka the index should be the same (aka. 3)
+                    
+                    // Apply offset to index
+                    adjustedIndex = rotor.applyOffsetTo(index);
+                    //console.log({counter: rotor.counter, offset: rotor.offset, adjustedIndex})
+                    expect(adjustedIndex).toBe(index); // 3 - 0 = 3
+                    
+                    // Increase counter
+                    rotor.update(); // increment counter by one
+                }
+                
+                // on the 6th cycle the offset should be 1.
+                // aka the index should be the input - 1 (aka. 2)
                 adjustedIndex = rotor.applyOffsetTo(index);
                 //console.log({counter: rotor.counter, offset: rotor.offset, adjustedIndex})
-                expect(adjustedIndex).toBe(index); // 3 - 0 = 3
+                expect(adjustedIndex).toBe(index - 1); // 3 - 0 = 3
+            });
+
+            it('reverse direction', () => {
+                const thresh = 6; // Per how many cycles should we rotate?
+                const index = 3; // Get 4th item in testlist
+                const rotor = new Rotor(testPairs, thresh);
                 
-                // Increase counter
-                rotor.update(); // increment counter by one
-            }
-            
-            // on the 6th cycle the offset should be 1.
-            // aka the index should be the input - 1 (aka. 2)
-            adjustedIndex = rotor.applyOffsetTo(index);
-            //console.log({counter: rotor.counter, offset: rotor.offset, adjustedIndex})
-            expect(adjustedIndex).toBe(index - 1); // 3 - 0 = 3
-        });
+                let adjustedIndex;
+                
+                for(let cycle = 0; cycle < 6; cycle++) {
+                    // for the first 5 cycles the offset should be 0
+                    // aka the index should be the same (aka. 3)
+                    
+                    // Apply offset to index
+                    adjustedIndex = rotor.applyOffsetTo(index);
+                    //console.log({counter: rotor.counter, offset: rotor.offset, adjustedIndex})
+                    expect(adjustedIndex).toBe(index); // 3 + 0 = 3
+                    
+                    // Increase counter
+                    rotor.update(); // increment counter by one
+                }
+                
+                // on the 6th cycle the offset should be 1.
+                // aka the index should be the input + 1 (aka. 3)
+                adjustedIndex = rotor.applyOffsetTo(index, 'REVERSE');
+                //console.log({counter: rotor.counter, offset: rotor.offset, adjustedIndex})
+                expect(adjustedIndex).toBe(index + 1); // 3 - 0 = 3
+            });
+        })
 
-        it('handles offset greater than list remainder', () => {
-            // If a rotor has an offset greater than the list length remainder,
-            // the rotor should wrap the offset around the list.
 
-            const rotor = new Rotor(testPairs, 1);
-            const index = 0; // get 1st item in testlist.
-            rotor.setOffset(1); // offset is now 1 step greater than the list length
-            const adjustedIndex = rotor.applyOffsetTo(index);
-            console.log({counter: rotor.counter, offset: rotor.offset, adjustedIndex})
-            expect(adjustedIndex).toBe(5);
-        });
+        
+        describe('handles offset greater than list remainder', () => {
+        // If a rotor has an offset greater than the list length remainder,
+        // the rotor should wrap the offset around the list.
+
+            it('Wraps around to end of list (direction: forward)', () => {
+                const rotor = new Rotor(testPairs, 1);
+                const index = 0; // get 1st item in testlist.
+                rotor.setOffset(1); // offset is now 1 step greater than the list remainder
+                const adjustedIndex = rotor.applyOffsetTo(index);
+                console.log({counter: rotor.counter, offset: rotor.offset, adjustedIndex})
+                expect(adjustedIndex).toBe(5);
+            });
+
+            it('Wraps around to begin of list (direction: reverse)', () => {
+                const rotor = new Rotor(testPairs, 1);
+                const index = testPairs.length -1; // get last item in testlist.
+                rotor.setOffset(1); // offset is now 1 step greater than the list remainder
+                const adjustedIndex = rotor.applyOffsetTo(index, 'REVERSE');
+                console.log({counter: rotor.counter, offset: rotor.offset, adjustedIndex})
+                expect(adjustedIndex).toBe(0);
+            });
+        })
+
 
         it('handles offsets greater than list length', () => {
             // If a rotor has an offset greater than the list length,
