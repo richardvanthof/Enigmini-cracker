@@ -5,12 +5,13 @@ import Rotor from '../Rotor/Rotor';
 
 
 // Test data
+// # = replacement for sppace (aka. ' ').
 const keymap = [
     ["O", "N", ["1", "!"], "C", "S", "X"],
     ["I", "G", "L", ["3", "."], "H", "T"],
     [["5", '"'], "Z", "R", "A", ["8", ","], "D"],
     ["P", ["6", ":"], "W", "E", ["2", "?"], "J"],
-    ["F", "K", "U", ["0", " "], "Y", "Q"],
+    ["F", "K", "U", ["0", "#"], "Y", "Q"],
     [["9", ";"], ["7", "_"], "B", ["4", "’"], "M", "V"]
 ];
 
@@ -110,21 +111,29 @@ describe("Enigmini", () => {
         expect(allPos).toStrictEqual(target);
       });
   
-      it("handles special characters", () => {
+      it("handles fetching special characters", () => {
         const enigmini = new Enigmini(keymap, rotorConfig, reflector);
         expect(enigmini.findCharacterPosition(";")).toEqual({
           row: 1,
           col: 1,
           subIndex: 1
         });
-      });
-    
+      });    
     })
   
-    it("translate pos to char", () => {
-      const enigmini = new Enigmini(keymap, rotorConfig, reflector);
-      expect(enigmini.positionToChar({ row: 6, col: 6 })).toBe("X");
-    });
+    describe("pos to char", () => {
+      it("translate pos to char", () => {
+        const enigmini = new Enigmini(keymap, rotorConfig, reflector);
+        expect(enigmini.positionToChar({ row: 6, col: 6 })).toBe("X"); // fetch char
+        expect(enigmini.positionToChar({ row: 1, col: 1, subIndex: 1 })).toBe(";"); // fetch special char.
+      });
+
+      it("replace missing secondary with primary character.", () => {
+        const enigmini = new Enigmini(keymap, rotorConfig, reflector);
+        expect(enigmini.positionToChar({ row: 2, col: 2, subIndex: 1 })).toBe("K");
+      });
+
+    })
 
     describe("remap value", () => {
       it("remaps value", () => {
@@ -172,14 +181,14 @@ describe("Enigmini", () => {
       it("encrypt row digit", () => {
         // From the example text we know that D should be encrypted to K.
         // The character D is located at row 4, K at row 2
-        expect(enigmini.encryptDigit(4, true)).toBe(2);
+        expect(enigmini.encryptDigit(4)).toBe(2);
         
       });
 
       it("encrypt col digit", () => {
         
         // The character D is located at col 6, K at col 2
-        expect(enigmini.encryptDigit(6, true)).toBe(2);
+        expect(enigmini.encryptDigit(6)).toBe(2);
       });
 
     });

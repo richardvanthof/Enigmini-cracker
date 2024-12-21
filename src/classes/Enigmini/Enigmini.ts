@@ -76,22 +76,18 @@ class Enigmini {
         return normalizedPos;
       }
     
-      positionToChar(pos: Pos) {
+      positionToChar(pos: Pos):string {
         const { row, col, subIndex } = pos;
 
         // coordinates are normalized to start counting from 1 instead of 0.
         // subtract one to get the correct index.
-        const char = this.keyMap[row - 1][col - 1];
-        
-        if(subIndex) {
-          return char[subIndex]
+        const cell = this.keyMap[row - 1][col - 1];
+        if(Array.isArray(cell) && subIndex) {
+          return cell[subIndex] || cell[0];
         } else {
-          if(Array.isArray(char)) {
-            return char[0]
-          } else {
-            return char
-          }
+          return cell as string;
         }
+        
       }
       
       remapValue(value: number|string, map:number[][]):number {
@@ -180,34 +176,47 @@ class Enigmini {
       };
       
       
-      encrypt(plain: string) {
-        
+      encrypt(plain: string, debug: boolean = false) {
+
         // Normalize to UPPERCASE
         const normalizedPlain = plain.toUpperCase();
-        
+        let counter = 1;
         let result = [];
+        const delimiter = '#';
         
         // Loop through each character of string
-        for (let char of normalizedPlain) {
-
+        for (let _char of normalizedPlain) {
+          // replace spaces with #-character
+          const char = _char.replace(' ', delimiter)
+          console.log({inputChar: char})
           // Find the position (ROW, COLUMN, SUBSTRING?] 
           // of the character in the key map
           const pos: Pos = this.findCharacterPosition(char);
-          
+          debug && console.log({pos})
           // Encrypt each coordinate
           const encryptedPos = {
             ...pos,
             row: this.encryptDigit(pos.row),
             col: this.encryptDigit(pos.col)
           }
+          debug && console.log({encryptedPos})
 
           // Transform coordinate to character
-          const encryptedChar = this.positionToChar(encryptedPos);
+          let encryptedChar:string = this.positionToChar(encryptedPos);
+          debug && console.log({encryptedChar})
+
+          if(!encryptedChar || typeof encryptedChar !== 'string') {
+            throw new Error(`Missing char '${char}' at index: ${counter}`)
+          }
           
+          // replace space delimiter with ' '
+          encryptedChar = encryptedChar.replace(delimiter, ' ');
+
           // Add encrypted character to cypher text.
           result.push(encryptedChar);
+          counter++;
         }
-    
+        
         // Return the encrypted text
         return result.join("");
       }
