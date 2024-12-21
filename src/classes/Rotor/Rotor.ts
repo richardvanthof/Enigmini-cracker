@@ -29,7 +29,6 @@ class Rotor {
         }
     }
 
-
     applyOffsetTo(index: number): number {
         // subtracts offset from the index of the targeted list item.
         // the rotor (aka the target values) are moving clockwise,
@@ -39,11 +38,10 @@ class Rotor {
 
         const mapLength = this.mapping.length;
         
+        const offset = ((this.offset % mapLength) + mapLength) % mapLength;;
         // - First %: Handle offsets larger than mapLength
         // - mapLength: Make negative numbers positive
         // - Second %: Ensure result is within [0, mapLength])
-        const offset = ((this.offset % mapLength) + mapLength) % mapLength;;
-        
 
         let newIndex = index - offset;
         if(newIndex < 0) {

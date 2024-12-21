@@ -194,17 +194,19 @@ describe("Enigmini", () => {
     });
     
     describe("encryption/decryption", () => {
-      const enigmini = new Enigmini(keymap, rotorConfig, reflector);
+      
       
       it("encrypt/decrypt single character", () => {
+        const enigmini = new Enigmini(keymap, rotorConfig, reflector);
         const plain = 'D';
         const cypher = 'K';
 
-        expect(enigmini.encrypt(plain)).toBe(cypher); // Encrypt
+        expect(enigmini.encrypt(plain, true)).toBe(cypher); // Encrypt
         expect(enigmini.encrypt(cypher)).toBe(plain); // Decrypt
       });
   
       it("encrypt/decrypt full scentence", () => {
+        const enigmini = new Enigmini(keymap, rotorConfig, reflector);
         expect(enigmini.encrypt(plain)).toBe(crypt); // Encrypt
         expect(enigmini.encrypt(crypt)).toBe(plain); // Decrypt
       });

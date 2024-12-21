@@ -136,14 +136,13 @@ class Enigmini {
       };
 
       private getRotorsInOrder(reverse: boolean = false): Rotor[] {
-        const indices = [...Array(this.rotors.length).keys()];
-        return (reverse ? indices.reverse() : indices).map(i => this.rotors[i]);
+        return reverse ? [...this.rotors].reverse() : [...this.rotors];
       }
 
       encryptDigit = (number:number, debug?:boolean):number => {
         if(!number || typeof(number) != 'number') {throw new Error('No valid input value provided!')}
 
-        debug && console.log('\nROTOR SETTINGS FOR THIS CYCLE')
+        debug && console.log(`\n## Encrypting "${number}"`)
         this.rotors.forEach((rotor:Rotor) => {
 
           debug && console.log({
@@ -151,7 +150,7 @@ class Enigmini {
             offset: rotor.offset, 
             thresh: rotor.thresh})
         });
-        debug && console.log('\nENCODING CYCLE')
+        debug && console.log('\n#### Encoding cycle')
         let result = number;
         debug && console.log({input: result})
         // encryption pipeline
@@ -184,7 +183,7 @@ class Enigmini {
         // het ontcijferingsteam van Piconesië ontdekte dat het stekkerbord 
         // verkeerd is geïmplementeerd en maar in één richting werkt. 
         // In de andere richting wordt het stekkerbord overgeslagen.
-        
+        debug && console.log({result});
         
         // Update rotor counters
         this.rotors.forEach((rotor:Rotor) => rotor.update());
@@ -206,22 +205,22 @@ class Enigmini {
         for (let _char of normalizedPlain) {
           // replace spaces with #-character
           const char = _char.replace(' ', delimiter)
-          console.log({inputChar: char})
+          debug && console.log(`\n\nENCRYPTING '${char}'`)
           // Find the position (ROW, COLUMN, SUBSTRING?] 
           // of the character in the key map
           const pos: Pos = this.findCharacterPosition(char);
-          debug && console.log({pos})
+          debug && console.log(pos)
           // Encrypt each coordinate
           const encryptedPos = {
             ...pos,
-            row: this.encryptDigit(pos.row),
-            col: this.encryptDigit(pos.col)
+            row: this.encryptDigit(pos.row, debug),
+            col: this.encryptDigit(pos.col, debug)
           }
-          debug && console.log({encryptedPos})
 
           // Transform coordinate to character
           let encryptedChar:string = this.positionToChar(encryptedPos);
-          debug && console.log({encryptedChar})
+          debug && console.log('\nRESULT')
+          debug && console.log({...encryptedPos, encryptedChar})
           
           if(!encryptedChar) {
 throw new Error(`Missing char '${char}' at index: ${counter}`)
