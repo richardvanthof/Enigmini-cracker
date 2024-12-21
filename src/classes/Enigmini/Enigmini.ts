@@ -76,18 +76,36 @@ class Enigmini {
         return normalizedPos;
       }
     
-      positionToChar(pos: Pos):string {
-        const { row, col, subIndex } = pos;
-
-        // coordinates are normalized to start counting from 1 instead of 0.
-        // subtract one to get the correct index.
-        const cell = this.keyMap[row - 1][col - 1];
-        if(Array.isArray(cell) && subIndex) {
-          return cell[subIndex] || cell[0];
-        } else {
-          return cell as string;
-        }
-        
+      positionToChar(pos: Pos): string {
+          // Input validation
+          if (!pos || typeof pos.row !== 'number' || typeof pos.col !== 'number') {
+              throw new Error('Invalid position provided');
+          }
+      
+          // Get array indices (convert from 1-based to 0-based)
+          const rowIndex = pos.row - 1;
+          const colIndex = pos.col - 1;
+      
+          // Get cell from keymap
+          const cell = this.keyMap[rowIndex][colIndex];
+          
+          // Handle array cell (special characters)
+          if (Array.isArray(cell)) {
+              // If subIndex specified, try to get that character
+              if (typeof pos.subIndex === 'number') {
+                  // Return subIndex char if exists, otherwise primary char
+                  return cell[pos.subIndex] ?? cell[0];
+              }
+              // No subIndex, return primary character
+              return cell[0];
+          }
+      
+          // Handle string cell (regular characters)
+          if (typeof cell === 'string') {
+              return cell;
+          }
+      
+          throw new Error(`Invalid cell content at position [${pos.row},${pos.col}]`);
       }
       
       remapValue(value: number|string, map:number[][]):number {
@@ -204,10 +222,14 @@ class Enigmini {
           // Transform coordinate to character
           let encryptedChar:string = this.positionToChar(encryptedPos);
           debug && console.log({encryptedChar})
-
-          if(!encryptedChar || typeof encryptedChar !== 'string') {
-            throw new Error(`Missing char '${char}' at index: ${counter}`)
+          
+          if(!encryptedChar) {
+throw new Error(`Missing char '${char}' at index: ${counter}`)
           }
+
+          // if(typeof encryptedChar !== 'string') {
+          //   throw new Error(`'${char}' (at index: ${counter}) is not a string.`)
+          // }
           
           // replace space delimiter with ' '
           encryptedChar = encryptedChar.replace(delimiter, ' ');
