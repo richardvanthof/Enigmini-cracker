@@ -143,12 +143,14 @@ class Enigmini {
         if(!number || typeof(number) != 'number') {throw new Error('No valid input value provided!')}
 
         debug && console.log(`\n## Encrypting "${number}"`)
-        this.rotors.forEach((rotor:Rotor) => {
+        this.rotors.forEach((rotor:Rotor, index) => {
 
-          debug && console.log({
+          debug && console.log({rotor: {
             counter: rotor.counter, 
             offset: rotor.offset, 
-            thresh: rotor.thresh})
+            thresh: rotor.thresh,
+            id: index+1,
+          }})
         });
         debug && console.log('\n#### Encoding cycle')
         let result = number;

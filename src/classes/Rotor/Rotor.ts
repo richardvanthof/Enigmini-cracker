@@ -66,7 +66,6 @@ class Rotor {
         const newVal = this.mapping[adjustedIndex][1];
         return newVal;
     }
-    
 }
 
 export default Rotor;
