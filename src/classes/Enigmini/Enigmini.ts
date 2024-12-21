@@ -139,10 +139,10 @@ class Enigmini {
         return reverse ? [...this.rotors].reverse() : [...this.rotors];
       }
 
-      encryptDigit = (number:number, debug?:boolean):number => {
+      cryptDigit = (number:number, debug?:boolean):number => {
         if(!number || typeof(number) != 'number') {throw new Error('No valid input value provided!')}
 
-        debug && console.log(`\n## Encrypting "${number}"`)
+        debug && console.log(`\n## Processing "${number}"`)
         this.rotors.forEach((rotor:Rotor, index) => {
 
           debug && console.log({rotor: {
@@ -163,8 +163,10 @@ class Enigmini {
         // 2. Rotors forward
         this.getRotorsInOrder().forEach((rotor, index) => {
           result = rotor.getValue(result);
-          debug && console.log({rotor: index, result});
+          debug && console.log({rotor: index+1, result});
         });
+
+        
         
         // 3. apply reflector
         if(this.reflector) {
@@ -175,7 +177,7 @@ class Enigmini {
         // 4. Rotors backward
         this.getRotorsInOrder(true).forEach((rotor, index) => {
           result = rotor.getValue(result);
-          debug && console.log({rotor: index, result});
+          debug && console.log({rotor: index+1, result});
         });
         
         // 5. apply plugboard*
@@ -195,7 +197,7 @@ class Enigmini {
       };
       
       
-      encrypt(plain: string, debug: boolean = false) {
+      crypt(plain: string, debug: boolean = false) {
 
         // Normalize to UPPERCASE
         const normalizedPlain = plain.toUpperCase();
@@ -207,7 +209,7 @@ class Enigmini {
         for (let _char of normalizedPlain) {
           // replace spaces with #-character
           const char = _char.replace(' ', delimiter)
-          debug && console.log(`\n\nENCRYPTING '${char}'`)
+          debug && console.log(`\n\n# Encrypting '${char}'`)
           // Find the position (ROW, COLUMN, SUBSTRING?] 
           // of the character in the key map
           const pos: Pos = this.findCharacterPosition(char);
@@ -215,17 +217,17 @@ class Enigmini {
           // Encrypt each coordinate
           const encryptedPos = {
             ...pos,
-            row: this.encryptDigit(pos.row, debug),
-            col: this.encryptDigit(pos.col, debug)
+            row: this.cryptDigit(pos.row, debug),
+            col: this.cryptDigit(pos.col, debug)
           }
 
           // Transform coordinate to character
           let encryptedChar:string = this.positionToChar(encryptedPos);
-          debug && console.log('\nRESULT')
+          debug && console.log('\n## Result')
           debug && console.log({...encryptedPos, encryptedChar})
           
           if(!encryptedChar) {
-throw new Error(`Missing char '${char}' at index: ${counter}`)
+            throw new Error(`Missing char '${char}' at index: ${counter}`)
           }
 
           // if(typeof encryptedChar !== 'string') {
