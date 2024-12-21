@@ -1,4 +1,4 @@
-import {describe, expect, it, test} from 'vitest'
+import {describe, expect, it} from 'vitest'
 import Rotor from './Rotor';
 
 describe("Rotor", ()=> {
@@ -12,6 +12,19 @@ describe("Rotor", ()=> {
     ]
 
     describe('Constructor validation', () => {
+        it("creates instance", () => {
+            const thresh = 2;
+            const rotor = new Rotor(testPairs, thresh);
+
+            // Check if instance is made
+            expect(rotor).toBeInstanceOf(Rotor);
+
+            // Check if default values are correct.
+            expect(rotor.counter).toBe(0);
+            expect(rotor.offset).toBe(0);
+            expect(rotor.thresh).toBe(thresh);
+        });
+
         it('throws error for threshold < 1', () => {
             expect(() => new Rotor(testPairs, 0)).toThrow('Threshold cannot be smaller than 1');
         });
