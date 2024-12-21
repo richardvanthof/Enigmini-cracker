@@ -39,11 +39,20 @@ describe("Rotor", ()=> {
         });
     });
 
-    it('returns correct value (without rotation)', ()=> {
-        const rotor = new Rotor(testPairs, 100);
-        const result = rotor.getValue(1);
-        expect(result).toBe(3)
-    });
+    describe('Get value', ()=>{
+        it('returns correct value (forwards, without rotation)', ()=> {
+            const rotor = new Rotor(testPairs, 100);
+            const result = rotor.getValue(1);
+            expect(result).toBe(3)
+        });
+
+        it('returns correct value (backwards, without rotation)', ()=> {
+            const rotor = new Rotor(testPairs, 100);
+            const result = rotor.getValue(1, 'REVERSE');
+            expect(result).toBe(2)
+        });
+    })
+
 
     it('updates counter', () => {
         const rotor = new Rotor(testPairs, 100);
