@@ -108,14 +108,14 @@ class Enigmini {
           throw new Error(`Invalid cell content at position [${pos.row},${pos.col}]`);
       }
       
-      remapValue(value: number|string, map:number[][]):number {
+      remapValue(value: number|string, map:number[][], reverse: boolean = false):number {
         // Input validation
-        if(!map) { throw new Error('Remap config not found!')}
-        if(!value) { throw new Error('Input value not found!')}
+        if (!map) { throw new Error('Remap config not found!') }
+        if (value === undefined || value === null) { throw new Error('Input value not found!') }
 
-        const index = map.findIndex((val) => value === val[0]);
-        if(index === -1) { throw new Error(`Value ${value} not found in map!`)}
-        return map[index][1];
+        const index = map.findIndex((val) => value === (reverse ? val[1] : val[0]));
+        if (index === -1) { throw new Error(`Value ${value} not found in map!`) }
+        return reverse ? map[index][0] : map[index][1];
       }
 
     
@@ -166,8 +166,6 @@ class Enigmini {
           debug && console.log({rotor: index+1, result});
         });
 
-        
-        
         // 3. apply reflector
         if(this.reflector) {
           result = this.remapValue(result, this.reflector); // apply reflector
@@ -176,7 +174,7 @@ class Enigmini {
         
         // 4. Rotors backward
         this.getRotorsInOrder(true).forEach((rotor, index) => {
-          result = rotor.getValue(result);
+          result = rotor.getValue(result, 'REVERSE');
           debug && console.log({rotor: index+1, result});
         });
         

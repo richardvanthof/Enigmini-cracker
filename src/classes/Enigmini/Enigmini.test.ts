@@ -133,9 +133,15 @@ describe("Enigmini", () => {
 
   describe("remap value", () => {
     const rotorConfig = [new Rotor(rotor1, 1), new Rotor(rotor2, 6)];
-    it("remaps value", () => {
+    it("remaps value (forwards)", () => {
       const enigmini = new Enigmini(keymap, rotorConfig, reflector);
       const result = enigmini.remapValue(1, reflector);
+      expect(result).toBe(5);
+    });
+
+    it("remaps value (backwards)", () => {
+      const enigmini = new Enigmini(keymap, rotorConfig, reflector);
+      const result = enigmini.remapValue(1, reflector, true);
       expect(result).toBe(5);
     });
 
