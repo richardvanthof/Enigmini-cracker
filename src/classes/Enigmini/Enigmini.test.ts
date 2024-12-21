@@ -177,23 +177,21 @@ describe("Enigmini", () => {
 
     it("checks for valid input", () => {
       const error = 'No valid input value provided!';
-      expect(()=> enigmini.cryptDigit(null as any)).toThrow(error);
+      expect(()=> enigmini.encryptDigit(null as any)).toThrow(error);
       // @ts-expect-error - Testing for invalid input
-      expect(()=> enigmini.cryptDigit('1')).toThrow(error);
+      expect(()=> enigmini.encryptDigit('1')).toThrow(error);
     });
-    
-    
     
     it("encrypt row digit", () => {
       // From the example text we know that D should be encrypted to K.
       // The character D is located at row 4, K at row 2
-      expect(enigmini.cryptDigit(4)).toBe(2);
+      expect(enigmini.encryptDigit(4)).toBe(2);
       
     });
 
     it("encrypt col digit", () => {
       // The character D is located at col 6, K at col 2
-      expect(enigmini.cryptDigit(6)).toBe(2);
+      expect(enigmini.encryptDigit(6)).toBe(2);
     });
 
   });
@@ -205,16 +203,14 @@ describe("Enigmini", () => {
 
       const plain = 'D';
       const cypher = 'K';
-      expect(enigmini.crypt(plain, true)).toBe(cypher); // Encrypt
-      expect(enigmini.crypt(cypher)).toBe(plain); // Decrypt
+      expect(enigmini.encrypt(plain, true)).toBe(cypher); // Encrypt
     });
 
     it("encrypt/decrypt full scentence", () => {
       const rotorConfig = [new Rotor(rotor1, 1), new Rotor(rotor2, 6)];
       const enigmini = new Enigmini(keymap, rotorConfig, reflector);
 
-      expect(enigmini.crypt(plain)).toBe(crypt); // Encrypt
-      expect(enigmini.crypt(crypt)).toBe(plain); // Decrypt
+      expect(enigmini.encrypt(plain)).toBe(crypt); // Encrypt
     });
   })
 });

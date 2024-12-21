@@ -139,7 +139,7 @@ class Enigmini {
         return reverse ? [...this.rotors].reverse() : [...this.rotors];
       }
 
-      cryptDigit = (number:number, debug?:boolean):number => {
+      encryptDigit = (number:number, debug?:boolean):number => {
         if(!number || typeof(number) != 'number') {throw new Error('No valid input value provided!')}
 
         debug && console.log(`\n## Processing "${number}"`)
@@ -195,7 +195,7 @@ class Enigmini {
       };
       
       
-      crypt(plain: string, debug: boolean = false) {
+      encrypt(plain: string, debug: boolean = false) {
 
         // Normalize to UPPERCASE
         const normalizedPlain = plain.toUpperCase();
@@ -215,8 +215,8 @@ class Enigmini {
           // Encrypt each coordinate
           const encryptedPos = {
             ...pos,
-            row: this.cryptDigit(pos.row, debug),
-            col: this.cryptDigit(pos.col, debug)
+            row: this.encryptDigit(pos.row, debug),
+            col: this.encryptDigit(pos.col, debug)
           }
 
           // Transform coordinate to character
