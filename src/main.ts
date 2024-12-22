@@ -43,20 +43,34 @@ const plain = "DEZE VOORBEELDTEKST IS VERCIJFERD MET DE ENIGMINI!";
 const crypt = "KRY8D1D37CRLE9NS906LJ4D1KVT2ZDL4KHU86LF8D5AC1OYMJE";
 
 const rotorConfig = [new Rotor(rotor1, 1), new Rotor(rotor2, 6)];
-const enigmini = new Enigmini(keymap, rotorConfig, reflector)
+const enigmini = new Enigmini(keymap, rotorConfig, reflector);
 
-const assignment0 = enigmini.encrypt(crypt);
+const assignment0 = enigmini.encrypt(plain);
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <article>
-    <h1>Enigmini results</h1>
-    <h2>0. Prove that my encryption implementation works<h2>
-    <ul>
-    <li><p>Sample string:</p> <code>${plain}</code></li>
-    <li><p>Encrypted ref:</p> <code>${crypt}</code></li>
-    <li><p>Enigmini encryption:</p> <code>${assignment0}</code></li>
-    <li><p>Enigmini decryption:</p> <code>${enigmini.crypt(assignment0)}</code></li>
-    </ul>
+  <h1>Enigmini results</h1>
+  <div>
+  <h2>a. Prove that my encryption implementation works!<h2>
+  <ul class="table">
+  <p class="label">Plain text ref.:</p>
+  <code>${plain}</code>
+  <p class="label">Encrypted ref:</p>
+  <code>${crypt}</code>
+  <p class="label">Enigmini encryption:</p>
+  <code>${assignment0}</code>
+  </ul>
+  </div>
+  <div>
+  <h2>b. Find plugboard config</h2>
+  <p>b. Gegeven is dezelfde beginconfiguratie als in het voorbeeld, maar met een ander stekkerbord.
+Geef de titel: <code>UCXOMDTVHMAXJCO6PKSJJ5P4Y18EMYUO2KOGDM31QXT31SEV8JH116</code></p>
+  </div>
+<div>
+  <h2>b. Find plugboard config</h2>
+  <p>b. Gegeven is dezelfde beginconfiguratie als b. maar met andere rotoren en reflectoren. Geef
+de titel: <code>0ULW2BHR3SJALF5P2FWCYONLHPFW7YZN84UPQWNKMTYIEYTYN2QE63SJBLFV6SQE9Y27E2</code></p>
+  </div>
   </article>
 `
 
