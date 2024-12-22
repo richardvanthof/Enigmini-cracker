@@ -164,17 +164,29 @@ describe("Rotor", ()=> {
             });
         })
 
-
-        it('handles offsets greater than list length', () => {
-            // If a rotor has an offset greater than the list length,
-            // the rotor should entirely wrap the offset around the list a couple of times.
-
-            const rotor = new Rotor(testPairs, 1);
-            const index = 0; // get 1st item in testlist.
-            rotor.setOffset(50); //wraps around 9 times; remainder of 2.
-            const adjustedIndex = rotor.applyOffsetTo(index);
-            console.log({counter: rotor.counter, offset: rotor.offset, adjustedIndex})
-            expect(adjustedIndex).toBe(4); //new index: 6 - 2 = 4
-        });
+        describe('handles offsets greater than list length', () => {
+            it('forward mode', () => {
+                // If a rotor has an offset greater than the list length,
+                // the rotor should entirely wrap the offset around the list a couple of times.
+    
+                const rotor = new Rotor(testPairs, 1);
+                const index = 0; // get 1st item in testlist.
+                rotor.setOffset(50); //wraps around 9 times; remainder of 2.
+                const adjustedIndex = rotor.applyOffsetTo(index);
+                console.log({counter: rotor.counter, offset: rotor.offset, adjustedIndex})
+                expect(adjustedIndex).toBe(4); //new index: 6 - 2 = 4
+            });
+            it('reverse mode', () => {
+                // If a rotor has an offset greater than the list length,
+                // the rotor should entirely wrap the offset around the list a couple of times.
+    
+                const rotor = new Rotor(testPairs, 1);
+                const index = 0; // get 1st item in testlist.
+                rotor.setOffset(50); //wraps around 9 times; remainder of 2.
+                const adjustedIndex = rotor.applyOffsetTo(index, 'REVERSE');
+                console.log({counter: rotor.counter, offset: rotor.offset, adjustedIndex})
+                expect(adjustedIndex).toBe(2); //new index: 2
+            });
+        })
     });
 })

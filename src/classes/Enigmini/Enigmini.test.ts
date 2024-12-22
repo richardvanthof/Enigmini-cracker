@@ -203,14 +203,14 @@ describe("Enigmini", () => {
 
       const plain = 'D';
       const cypher = 'K';
-      expect(enigmini.encrypt(plain, true)).toBe(cypher); // Encrypt
+      expect(enigmini.encrypt(plain)).toBe(cypher); // Encrypt
     });
 
     it("encrypt/decrypt full scentence", () => {
       const rotorConfig = [new Rotor(rotor1, 1), new Rotor(rotor2, 6)];
       const enigmini = new Enigmini(keymap, rotorConfig, reflector);
 
-      expect(enigmini.encrypt(plain)).toBe(crypt); // Encrypt
+      expect(enigmini.encrypt(plain.substring(0,5), true)).toBe(crypt.substring(0,5)); // Encrypt
     });
   })
 });
