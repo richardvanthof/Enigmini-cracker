@@ -1,11 +1,28 @@
 import type Rotor from "../Rotor/Rotor"
 
+/**
+ * Specifies coordinate for character in keymap
+ */
 export interface Pos {
   row: number,
   col: number,
   subIndex?: number
 }
 
+/**
+ * Enigmini is a class that implements an Enigma-like encryption machine.
+ * It uses a keyboard mapping, rotors, reflector and plugboard for encryption.
+ * 
+ * @example
+ * ```typescript
+ * const enigma = new Enigmini(keyMap, rotors, reflector, plugboard);
+ * const encrypted = enigma.encrypt("HELLO WORLD");
+ * ```
+ * 
+ * @remarks
+ * The rotor config is an array of Rotor instances. This array should be in the correct order.
+ * @public
+ */
 class Enigmini {
     // Types
     readonly keyMap: (string | string[])[][];
@@ -30,7 +47,10 @@ class Enigmini {
         this.reflector = reflectorConfig;
 
       }
-
+      /** 
+       * Search for single (special) character or number in the keymap 
+       * and returns it's column and row number.
+       * */
       findCharacterPosition(char: string):Pos {   
         const keyMap = this.keyMap;
         let normalizedPos;
@@ -75,7 +95,8 @@ class Enigmini {
 
         return normalizedPos;
       }
-    
+      
+      /**Translates position to character from keymap */
       positionToChar(pos: Pos): string {
           // Input validation
           if (!pos || typeof pos.row !== 'number' || typeof pos.col !== 'number') {
@@ -108,6 +129,7 @@ class Enigmini {
           throw new Error(`Invalid cell content at position [${pos.row},${pos.col}]`);
       }
       
+      /**Remap one value to a prespecified other value */
       remapValue(value: number|string, map:number[][], reverse: boolean = false):number {
         // Input validation
         if (!map) { throw new Error('Remap config not found!') }
@@ -119,7 +141,7 @@ class Enigmini {
       }
 
     
-      // if plugboard is available && value is in plugbard: apply it.
+      /** If applies additional substitution cypher when plugboard is configured.*/
       applyPlugBoard = (value:number):number => {
         if(this.plugBoard && this.plugBoard.some((element) => {
           // check if value is on index 0 of plugboard items
@@ -135,10 +157,12 @@ class Enigmini {
         }
       };
 
+      /** Specifies if rotors should be applied in default or reversed order. */
       private getRotorsInOrder(reverse: boolean = false): Rotor[] {
         return reverse ? [...this.rotors].reverse() : [...this.rotors];
       }
-
+      
+      /**Encrypt single digit (often character position coordinate). */
       encryptDigit = (number:number, debug?:boolean):number => {
         if(!number || typeof(number) != 'number') {throw new Error('No valid input value provided!')}
 
@@ -194,7 +218,7 @@ class Enigmini {
         return result;
       };
       
-      
+      /**Encrypt string */
       encrypt(plain: string, debug: boolean = false) {
 
         // Normalize to UPPERCASE
@@ -227,10 +251,6 @@ class Enigmini {
           if(!encryptedChar) {
             throw new Error(`Missing char '${char}' at index: ${counter}`)
           }
-
-          // if(typeof encryptedChar !== 'string') {
-          //   throw new Error(`'${char}' (at index: ${counter}) is not a string.`)
-          // }
           
           // replace space delimiter with ' '
           encryptedChar = encryptedChar.replace(delimiter, ' ');

@@ -1,3 +1,22 @@
+/**
+* The Rotor class implements a rotating substitution cipher where 
+* numbers are mapped to other numbers, with the mapping shifting 
+* based on a counter and threshold system.
+* 
+* Multiple rotors can be added as a list to an Enigma instance
+* to configure the encyrption settings.
+* 
+* @example
+* ```typescript
+* const map = [[1, 3], [2, 1], [3,2]]
+* const rotors = [new Rotor(map, 3), new Rotor(map, 3)]
+* const enigma = new Enigmini(keyMap, rotors, reflector, plugboard);
+* ```
+* @remarks
+* - Add an number pairs to `mappings` as an array of arrays with the two coupled numbers.
+* - `Threshold` enables you to specify per how many encryption clycles the rotor must shift.
+* @public
+*/
 class Rotor {
     // Types
     counter: number;
@@ -18,6 +37,7 @@ class Rotor {
         this.mapping = mapping
     }
 
+    /**Increments counter and checks if the offset should be increased. */
     update():void {
         // Update counter
         this.counter++;
@@ -29,6 +49,7 @@ class Rotor {
         }
     }
 
+    /**Shifts the target index according to the currect offset */
     applyOffsetTo(index: number, direction: 'FORWARD' | 'REVERSE' = 'FORWARD'): number {
 
         const mapLength = this.mapping.length;
@@ -58,10 +79,12 @@ class Rotor {
         return newIndex;
     }
 
+    /*Manualy set the current offset*/
     setOffset(offset: number): void {
         this.offset = offset;
     }
     
+    /**Apply substitution cypher to single digit (often character coordinate). */
     getValue(input:number, direction: 'FORWARD' | 'REVERSE' = 'FORWARD'):number {
         // Find the entry in the list of coupled numbers.
         // direction === forward: check against the input value.

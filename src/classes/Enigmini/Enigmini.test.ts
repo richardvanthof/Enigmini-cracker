@@ -42,7 +42,6 @@ const rotor2 = [
   [6, 4]
 ];
 
-
 const plain = "DEZE VOORBEELDTEKST IS VERCIJFERD MET DE ENIGMINI!";
 const crypt = "KRY8D1D37CRLE9NS906LJ4D1KVT2ZDL4KHU86LF8D5AC1OYMJE";
 
@@ -127,6 +126,7 @@ describe("Enigmini", () => {
     it("replace missing secondary with primary character.", () => {
       const enigmini = new Enigmini(keymap, rotorConfig, reflector);
       expect(enigmini.positionToChar({ row: 2, col: 2, subIndex: 1 })).toBe("K");
+      expect(enigmini.positionToChar({ row: 2, col: 2, subIndex: 0 })).toBe("K");
     });
 
   })
@@ -206,7 +206,7 @@ describe("Enigmini", () => {
       expect(enigmini.encrypt(plain)).toBe(cypher); // Encrypt
     });
 
-    it("encrypt/decrypt full scentence", () => {
+    it("encrypt/decrypt scentence", () => {
       const rotorConfig = [new Rotor(rotor1, 1), new Rotor(rotor2, 6)];
       const enigmini = new Enigmini(keymap, rotorConfig, reflector);
 
