@@ -13,7 +13,7 @@
 * const enigma = new Enigmini(keyMap, rotors, reflector, plugboard);
 * ```
 * @remarks
-* - Add an number pairs to `mappings` as an array of arrays with the two coupled numbers.
+* - Add an number pairs to `mappings` as an array of arrays with the .
 * - `Threshold` enables you to specify per how many encryption clycles the rotor must shift.
 * @public
 */
@@ -21,7 +21,7 @@ class Rotor {
     // Types
     counter: number;
     offset: number;
-    thresh: number;
+    readonly thresh: number;
     mapping: number[][];
     operations: number[];
 
@@ -47,13 +47,30 @@ class Rotor {
     rotate():void {
 
         /**Update offset counter */
-        this.thresh++;
+        this.offset++;
 
         /**shift the operations list */
         let lastOperation = this.operations.pop();
         if (lastOperation !== undefined) {
             this.operations.unshift(lastOperation);
         }
+
+        const max = this.mapping.length;
+        const min = 1
+        const range = max - min + 1;
+
+        
+        this.mapping = this.mapping.map((value, index) => {
+            const [input] = value;
+           
+            /**Input adjusted by currect mutation */
+            const mutation = this.operations[index];
+            let output = input + mutation;
+           
+            /**Normalize mutated value to zero-based range and wrap around */
+            output = ((output - min) % range + range) % range + min; 
+            return [input, output, mutation];
+        })
 
     }
 
@@ -69,25 +86,21 @@ class Rotor {
     }
     
     /**Apply substitution cypher to single digit (often character coordinate). */
-    getValue(input:number, direction: 'FORWARD' | 'REVERSE' = 'FORWARD'):number {
-        // Find the entry in the list of coupled numbers.
-        // direction === forward: check against the input value.
-        // direction === reverse: check against the output value 
-        const index = this.mapping.findIndex(([source, target]) => {
-            const currentVal = direction === 'FORWARD' ? source : target;
-            return input === currentVal;
-        });
+    getValue(_input:number, direction: 'FORWARD' | 'REVERSE' = 'FORWARD', debug: boolean = false):number {
+        
+        let selected;
+        if (direction === 'FORWARD') {
+            selected = this.mapping.find(([inputValue]) => inputValue === _input);
+        } else {
+            selected = this.mapping.find(([, outputValue]) => outputValue === _input);
+        }
         
         // Check if an index was found.
-        if(index === -1) { throw new Error(`'${input}' results in an invalid index.`) }
-        
-        const mutation = this.operations[index];
-        const max = this.mapping.length;
-        const min = 1
-        const range = max - min + 1;
+        if(!selected) { throw new Error(`'${_input}' results in an invalid index.`) }
 
-        const value = (direction === 'FORWARD') ? input + mutation : input - mutation;
-        return ((value - min) % range + range) % range + min; 
+        const [input, output] = selected;
+        return direction === 'FORWARD' ? output : input;
+       
     }
 }
 

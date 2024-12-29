@@ -57,11 +57,13 @@ describe("Enigmini", () => {
     });
 
     it("throws error for missing keymap", () => {
-      expect(() => new Enigmini(null as any, rotorConfig, reflector)).toThrow('Keymap not defined');
+      expect(() => new Enigmini(null as any, rotorConfig, reflector))
+      .toThrow('Keymap not defined');
     });
 
     it("throws error for missing rotors", () => {
-      expect(() => new Enigmini(keymap, null as any, reflector)).toThrow('Rotors not defined');
+      expect(() => new Enigmini(keymap, null as any, reflector))
+      .toThrow('Rotors not defined');
     });
   });
     
@@ -82,7 +84,8 @@ describe("Enigmini", () => {
     it("throws error for unknown character", () => {
       const target = '@';
       const enigmini:Enigmini = new Enigmini(keymap, rotorConfig, reflector);
-      expect(()=>enigmini.findCharacterPosition(target)).toThrow(`Character ${target} not found in keymap.`);
+      expect(()=>enigmini.findCharacterPosition(target))
+      .toThrow(`Character ${target} not found in keymap.`);
     });
 
   
@@ -128,6 +131,12 @@ describe("Enigmini", () => {
       expect(enigmini.positionToChar({ row: 2, col: 2, subIndex: 1 })).toBe("K");
       expect(enigmini.positionToChar({ row: 2, col: 2, subIndex: 0 })).toBe("K");
     });
+
+    // it('Throws error if no valid char is returned', ()=> {
+    //   const enigmini = new Enigmini(keymap, rotorConfig, reflector);
+    //   expect(enigmini.positionToChar({row: 100, col:100}))
+    //   .toThrow(`Invalid cell content 'undefined' at row 100 and col 100.`)
+    // })
 
   })
 
@@ -185,7 +194,7 @@ describe("Enigmini", () => {
     it("encrypt row digit", () => {
       // From the example text we know that D should be encrypted to K.
       // The character D is located at row 4, K at row 2
-      expect(enigmini.encypherDigit(4, true)).toBe(2);
+      expect(enigmini.encypherDigit(4, false)).toBe(2);
       
     });
 
@@ -196,21 +205,21 @@ describe("Enigmini", () => {
 
   });
   
-  // describe("encryption/decryption", () => {
-  //   it("encrypt/decrypt single character", () => {
-  //     const rotorConfig = [new Rotor(rotor1, 1), new Rotor(rotor2, 6)];
-  //     const enigmini = new Enigmini(keymap, rotorConfig, reflector);
+  describe("encryption/decryption", () => {
+    it("encrypt/decrypt single character", () => {
+      const rotorConfig = [new Rotor(rotor1, 1), new Rotor(rotor2, 6)];
+      const enigmini = new Enigmini(keymap, rotorConfig, reflector);
 
-  //     const plain = 'D';
-  //     const cypher = 'K';
-  //     expect(enigmini.encypher(plain)).toBe(cypher); // Encrypt
-  //   });
+      const plain = 'D';
+      const cypher = 'K';
+      expect(enigmini.encypher(plain)).toBe(cypher); // Encrypt
+    });
 
-  //   it("encrypt/decrypt scentence", () => {
-  //     const rotorConfig = [new Rotor(rotor1, 1), new Rotor(rotor2, 6)];
-  //     const enigmini = new Enigmini(keymap, rotorConfig, reflector);
+    it("encrypt/decrypt scentence", () => {
+      const rotorConfig = [new Rotor(rotor1, 1), new Rotor(rotor2, 6)];
+      const enigmini = new Enigmini(keymap, rotorConfig, reflector);
 
-  //     expect(enigmini.encypher(plain.substring(0,5), true)).toBe(crypt.substring(0,5)); // Encrypt
-  //   });
-  // })
+      expect(enigmini.encypher(plain, true)).toBe(crypt); // Encrypt
+    });                                              
+  })
 });

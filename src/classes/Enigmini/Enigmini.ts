@@ -126,7 +126,7 @@ class Enigmini {
               return cell;
           }
       
-          throw new Error(`Invalid cell content at position [${pos.row},${pos.col}]`);
+          throw new Error(`Invalid cell content '${cell}' at row ${pos.row} and col ${pos.col}].`);
       }
       
       /**Remap one value to a prespecified other value */
@@ -163,7 +163,7 @@ class Enigmini {
       }
       
       /**Encrypt/decrypt single digit (often character position coordinate). */
-      encypherDigit = (number:number, debug?:boolean):number => {
+      encypherDigit = (number:number, debug:boolean = false):number => {
         if(!number || typeof(number) != 'number') {throw new Error('No valid input value provided!')}
 
         debug && console.log(`\n## Processing "${number}"`)
@@ -186,7 +186,7 @@ class Enigmini {
         
         // 2. Rotors forward
         this.getRotorsInOrder().forEach((rotor, index) => {
-          result = rotor.getValue(result);
+          result = rotor.getValue(result, 'FORWARD', debug);
           debug && console.log({rotor: index+1, result});
         });
 
@@ -198,7 +198,7 @@ class Enigmini {
         
         // 4. Rotors backward
         this.getRotorsInOrder(true).forEach((rotor, index) => {
-          result = rotor.getValue(result, 'REVERSE');
+          result = rotor.getValue(result, 'REVERSE', debug);
           debug && console.log({rotor: index+1, result});
         });
         
