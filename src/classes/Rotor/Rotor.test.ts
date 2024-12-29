@@ -87,29 +87,22 @@ describe("Rotor", ()=> {
     describe('Get value', ()=>{
         it('returns correct value (forwards, without rotation)', ()=> {
             const rotor = new Rotor(testPairs, 100);
-           
-            let result = rotor.getValue(1);
-            expect(result).toBe(2)
-            
-            result = rotor.getValue(2);
-            expect(result).toBe(5)
-            
-            result = rotor.getValue(6);
-            expect(result).toBe(3)
-          
+
+            testPairs.forEach(pair => {
+                const [input, output] = pair;
+                const result = rotor.getValue(input, 'FORWARD');
+                expect(result).toBe(output)
+            });          
         });
 
         it('returns correct value (backwards, without rotation)', ()=> {
             const rotor = new Rotor(testPairs, 100);
-            
-            let result = rotor.getValue(1, 'REVERSE');
-            expect(result).toBe(5)
 
-            result = rotor.getValue(2, 'REVERSE');
-            expect(result).toBe(1)
-
-            result = rotor.getValue(6, 'REVERSE');
-            expect(result).toBe(4)
+            testPairs.forEach(pair => {
+                const [input, output] = pair;
+                const result = rotor.getValue(output, 'REVERSE');
+                expect(result).toBe(input)
+            });
         });
     })
 

@@ -79,16 +79,15 @@ class Rotor {
         });
         
         // Check if an index was found.
-        if(index === -1) { throw new Error('Invalid input') }
+        if(index === -1) { throw new Error(`'${input}' results in an invalid index.`) }
         
         const mutation = this.operations[index];
-        const mapLength = this.mapping.length;
+        const max = this.mapping.length;
+        const min = 1
+        const range = max - min + 1;
 
-        if(direction === 'FORWARD') {
-            return (input + mutation) % mapLength;
-        } else {
-            return (input - mutation + mapLength) % mapLength;
-        }
+        const value = (direction === 'FORWARD') ? input + mutation : input - mutation;
+        return ((value - min) % range + range) % range + min; 
     }
 }
 
