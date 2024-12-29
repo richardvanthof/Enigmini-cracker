@@ -58,28 +58,62 @@ describe("Rotor", ()=> {
 
     });
 
-    // describe('Get value', ()=>{
-    //     it('returns correct value (forwards, without rotation)', ()=> {
-    //         const rotor = new Rotor(testPairs, 100);
-    //         const result = rotor.getValue(1);
-    //         expect(result).toBe(3)
-    //     });
+    describe('Rotate rotor', () => {
+        it('moves rotor one step', ()=> {
+            const rotor = new Rotor(testPairs);
+            
+            // Check initial state
+            expect(rotor.operations).toStrictEqual([1,3,1,2,2,3])
 
-    //     it('returns correct value (backwards, without rotation)', ()=> {
-    //         const rotor = new Rotor(testPairs, 100);
-    //         const result = rotor.getValue(1, 'REVERSE');
-    //         expect(result).toBe(2)
-    //     });
-    // })
+            // Rotate operations one step
+            // move last operation to start of list.
+            rotor.rotate();
+            expect(rotor.operations).toStrictEqual([3,1,3,1,2,2])
+        })
+    })
+
+    describe('Update rotor', () => {
+        it('updates counter', () => {
+            const rotor = new Rotor(testPairs, 100);
+            for(let i = 0; i < 10; i++){
+                expect(rotor.counter).toBe(i);
+                rotor.update()
+            }
+        });
+
+    })
+
+    
+    describe('Get value', ()=>{
+        it('returns correct value (forwards, without rotation)', ()=> {
+            const rotor = new Rotor(testPairs, 100);
+           
+            let result = rotor.getValue(1);
+            expect(result).toBe(2)
+            
+            result = rotor.getValue(2);
+            expect(result).toBe(5)
+            
+            result = rotor.getValue(6);
+            expect(result).toBe(3)
+          
+        });
+
+        it('returns correct value (backwards, without rotation)', ()=> {
+            const rotor = new Rotor(testPairs, 100);
+            
+            let result = rotor.getValue(1, 'REVERSE');
+            expect(result).toBe(5)
+
+            result = rotor.getValue(2, 'REVERSE');
+            expect(result).toBe(1)
+
+            result = rotor.getValue(6, 'REVERSE');
+            expect(result).toBe(4)
+        });
+    })
 
 
-    // it('updates counter', () => {
-    //     const rotor = new Rotor(testPairs, 100);
-    //     for(let i = 0; i < 10; i++){
-    //         expect(rotor.counter).toBe(i);
-    //         rotor.update()
-    //     }
-    // });
 
     // describe(('apply offset to index'), () => {
 
