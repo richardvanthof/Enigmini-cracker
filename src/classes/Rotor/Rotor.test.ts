@@ -59,39 +59,135 @@ describe("Rotor", ()=> {
     });
 
     describe('Rotate rotor', () => {
-        it('moves rotor one step', ()=> {
+        /**Reference rotor rotations */
+        const rotations = [
+            [
+                [1, 2, 1],
+                [2, 5, 3],
+                [3, 4, 1],
+                [4, 6, 2],
+                [5, 1, 2],
+                [6, 3, 3]
+            ],
+            [
+                [1, 4, 3],
+                [2, 3, 1],
+                [3, 6, 3],
+                [4, 5, 1],
+                [5, 1, 2],
+                [6, 2, 2]
+            ],
+            [
+                [1, 3, 2],
+                [2, 5, 3],
+                [3, 4, 1],
+                [4, 1, 3],
+                [5, 6, 1],
+                [6, 2, 2]
+            ],
+            [
+                [1, 3, 2],
+                [2, 4, 2],
+                [3, 6, 3],
+                [4, 5, 1],
+                [5, 2, 3],
+                [6, 1, 1]
+            ],
+            [
+                [1, 2, 1],
+                [2, 4, 2],
+                [3, 5, 2],
+                [4, 1, 3],
+                [5, 6, 1],
+                [6, 3, 3]
+            ],
+            [
+                [1, 4, 3],
+                [2, 3, 1],
+                [3, 5, 2],
+                [4, 6, 2],
+                [5, 2, 3],
+                [6, 1, 1]
+            ],
+        ];
+        it('rotates opertaions', ()=> {
             const rotor = new Rotor(testPairs);
             
-            // Check initial state
-            expect(rotor.operations).toStrictEqual([1,3,1,2,2,3])
-
+            // check initial state
+            expect(rotor.operations).toStrictEqual([1,3,1,2,2,3]);
+            
             // Rotate operations one step
-            // move last operation to start of list.
             rotor.rotate();
-            expect(rotor.operations).toStrictEqual([3,1,3,1,2,2])
+            expect(rotor.operations).toStrictEqual([3,1,3,1,2,2]);
+        });
+
+        it('generates correct mappings', () => {
+            const rotor = new Rotor(testPairs);
+            
+            [...rotations, ...rotations, ...rotations].forEach((refMap) => {
+                expect(rotor.mapping).toStrictEqual(refMap);
+                rotor.update();
+            });  
+        });
+
+        it('rotates every 6th cycle', ()=> {
+            const cycles = [
+                rotations[0],
+                rotations[0],
+                rotations[0],
+                rotations[0],
+                rotations[0],
+                rotations[0],
+                rotations[1],
+                rotations[1],
+                rotations[1],
+                rotations[1],
+                rotations[1],
+                rotations[1],
+                rotations[2],
+                rotations[2],
+                rotations[2],
+                rotations[2],
+                rotations[2],
+                rotations[2],
+                rotations[3],
+            ]
+            
+            const rotor = new Rotor(testPairs, rotations.length);
+            
+            // for(let index = 0; index < rotations.length; index++) {
+            //     expect(rotor.mapping).toStrictEqual(rotations[index]);
+            //     for(let cycles = 0; cycles < rotations.length; cycles++) {
+            //         rotor.update();
+            //     }
+            // }
+
+            cycles.forEach((refMap) => {
+                expect(rotor.mapping).toStrictEqual(refMap);
+                rotor.update()
+            })
         })
-    })
+    });
 
     describe('Update rotor', () => {
         it('updates counter', () => {
             const rotor = new Rotor(testPairs, 100);
             for(let i = 0; i < 10; i++){
                 expect(rotor.counter).toBe(i);
-                rotor.update()
-            }
+                rotor.update();
+            };
         });
-
-    })
+    });
 
     
-    describe('Get value', ()=>{
+    describe('Get value', () => {
         it('returns correct value (forwards, without rotation)', ()=> {
             const rotor = new Rotor(testPairs, 100);
 
             testPairs.forEach(pair => {
                 const [input, output] = pair;
                 const result = rotor.getValue(input, 'FORWARD');
-                expect(result).toBe(output)
+                expect(result).toBe(output);
             });          
         });
 
@@ -104,7 +200,7 @@ describe("Rotor", ()=> {
                 expect(result).toBe(input)
             });
         });
-    })
+    });
 
 
 

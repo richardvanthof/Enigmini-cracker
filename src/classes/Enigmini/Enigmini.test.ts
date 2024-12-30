@@ -219,7 +219,7 @@ describe("Enigmini", () => {
       const rotorConfig = [new Rotor(rotor1, 1), new Rotor(rotor2, 6)];
       const enigmini = new Enigmini(keymap, rotorConfig, reflector);
 
-      expect(enigmini.encypher(plain, true)).toBe(crypt); // Encrypt
+      expect(enigmini.encypher(crypt, true)).toBe(plain); // Encrypt
     });                                              
   })
 });

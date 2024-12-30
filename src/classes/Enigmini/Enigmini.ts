@@ -1,5 +1,5 @@
-import type Rotor from "../Rotor/Rotor"
-
+import type Rotor from "../Rotor/Rotor";
+import log from '../../lib/Logger';
 /**
  * Specifies coordinate for character in keymap
  */
@@ -55,7 +55,7 @@ class Enigmini {
         const keyMap = this.keyMap;
         let normalizedPos;
         let normalizedChar = char.toUpperCase();
-        // console.log(keyMap);
+        // log(keyMap);
         // Loop trough each cell in the keymap
         keyMap.forEach((row, rowIndex) => {
           row.forEach((col, colIndex) => { 
@@ -64,7 +64,7 @@ class Enigmini {
             if(Array.isArray(col)) {
               // if it is, check if it contains the target character.
               if (col.includes(normalizedChar)) {
-                // console.log({col, rowIndex, colIndex})
+                // log({col, rowIndex, colIndex})
                 normalizedPos = {
                   
                   // Position is normalized to start counting 
@@ -77,7 +77,7 @@ class Enigmini {
             } else {
               // if not, just check if the cell is the target character.
               if(col === normalizedChar) {
-                // console.log({col, rowIndex, colIndex})
+                // log({col, rowIndex, colIndex})
                 // Position is normalized to start counting 
                 // from 1 instead of 0.
                 normalizedPos = {
@@ -149,7 +149,7 @@ class Enigmini {
         })) {
           // if value is in a plugboard, remap it.
           const result = this.remapValue(value, this.plugBoard);
-          console.log({plugboard: result})
+          log({plugboard: result})
           return result;
         } else {
           // if value is not in a plugboard, pass it through.
@@ -166,19 +166,20 @@ class Enigmini {
       encypherDigit = (number:number, debug:boolean = false):number => {
         if(!number || typeof(number) != 'number') {throw new Error('No valid input value provided!')}
 
-        debug && console.log(`\n## Processing "${number}"`)
+        debug && log(`\n## Processing "${number}"`)
         this.rotors.forEach((rotor:Rotor, index) => {
 
-          debug && console.log({rotor: {
+          debug && log({rotor: {
             counter: rotor.counter, 
             offset: rotor.offset, 
+            offsetNormalized: rotor.normalize(rotor.offset),
             thresh: rotor.thresh,
             id: index+1,
           }})
         });
-        debug && console.log('\n#### Encoding cycle')
+        debug && log('\n#### Encoding cycle')
         let result = number;
-        debug && console.log({input: result})
+        debug && log({input: result})
         // encryption pipeline
         
         // 1. apply plugboard
@@ -187,19 +188,19 @@ class Enigmini {
         // 2. Rotors forward
         this.getRotorsInOrder().forEach((rotor, index) => {
           result = rotor.getValue(result, 'FORWARD', debug);
-          debug && console.log({rotor: index+1, result});
+          debug && log({rotor: index+1, result});
         });
 
         // 3. apply reflector
         if(this.reflector) {
           result = this.remapValue(result, this.reflector); // apply reflector
-          debug && console.log({reflector: result})
+          debug && log({reflector: result})
         }
         
         // 4. Rotors backward
         this.getRotorsInOrder(true).forEach((rotor, index) => {
           result = rotor.getValue(result, 'REVERSE', debug);
-          debug && console.log({rotor: index+1, result});
+          debug && log({rotor: index+1, result});
         });
         
         // 5. apply plugboard*
@@ -209,7 +210,7 @@ class Enigmini {
         // het ontcijferingsteam van Piconesië ontdekte dat het stekkerbord 
         // verkeerd is geïmplementeerd en maar in één richting werkt. 
         // In de andere richting wordt het stekkerbord overgeslagen.
-        debug && console.log({result});
+        debug && log({result});
         
         // Update rotor counters
         this.rotors.forEach((rotor:Rotor) => rotor.update());
@@ -221,7 +222,7 @@ class Enigmini {
       /**Encrypt/decrypt string */
       encypher(plain: string, debug: boolean = false) {
 
-        // Normalize to UPPERCASE
+        /**Normalize string to UPPERCASE*/
         const normalizedPlain = plain.toUpperCase();
         let counter = 1;
         let result = [];
@@ -229,24 +230,27 @@ class Enigmini {
         
         // Loop through each character of string
         for (let _char of normalizedPlain) {
+          
           // replace spaces with #-character
           const char = _char.replace(' ', delimiter)
-          debug && console.log(`\n\n# Encrypting '${char}'`)
-          // Find the position (ROW, COLUMN, SUBSTRING?] 
-          // of the character in the key map
+          debug && log(`\n\n# Encrypting '${char}'`)
+          
+          /** Find the position (ROW, COLUMN, SUBSTRING?] 
+           * of the character in the key map */
           const pos: Pos = this.findCharacterPosition(char);
-          debug && console.log(pos)
-          // Encrypt each coordinate
+          debug && log(pos)
+          
+          /**Encypher each coordinate. */
           const encryptedPos = {
             ...pos,
             row: this.encypherDigit(pos.row, debug),
             col: this.encypherDigit(pos.col, debug)
           }
 
-          // Transform coordinate to character
+          /**Transform coordinate to character. */
           let encryptedChar:string = this.positionToChar(encryptedPos);
-          debug && console.log('\n## Result')
-          debug && console.log({...encryptedPos, encryptedChar})
+          debug && log('\n## Result')
+          debug && log({...encryptedPos, encryptedChar})
           
           if(!encryptedChar) {
             throw new Error(`Missing char '${char}' at index: ${counter}`)

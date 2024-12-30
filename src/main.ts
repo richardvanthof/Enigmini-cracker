@@ -1,6 +1,6 @@
-import './style.css'
 import Enigmini from './classes/Enigmini/Enigmini';
 import Rotor from './classes/Rotor/Rotor';
+import {saveToFile} from './lib/Logger.ts';
 
 const keymap = [
   ["O", "N", ["1", "!"], "C", "S", "X"],
@@ -21,61 +21,60 @@ const reflector = [
 ];
 
 const rotor1 = [
-[1, 2],
-[2, 5],
-[3, 4],
-[4, 6],
-[5, 1],
-[6, 3]
+[1, 2, 1],
+[2, 5, 3],
+[3, 4, 1],
+[4, 6, 2],
+[5, 1, 2],
+[6, 3, 3]
 ];
 
 const rotor2 = [
-[1, 3],
-[2, 1],
-[3, 5],
-[4, 6],
-[5, 2],
-[6, 4]
+[1, 3, 2],
+[2, 1, -1],
+[3, 5, 2],
+[4, 6, 2],
+[5, 2, 3],
+[6, 4, -2]
 ];
 
 // Reference string
 const plain = "DEZE VOORBEELDTEKST IS VERCIJFERD MET DE ENIGMINI!";
-const crypt = "KRY8D1D37CRLE9NS906LJ4D1KVT2ZDL4KHU86LF8D5AC1OYMJE";
+const cypher = "KRY8D1D37CRLE9NS906LJ4D1KVT2ZDL4KHU86LF8D5AC1OYMJE";
 
 const rotorConfig = [new Rotor(rotor1, 1), new Rotor(rotor2, 6)];
+const rotorConfig2 = [new Rotor(rotor1, 1), new Rotor(rotor2, 6)];
+
 const enigmini = new Enigmini(keymap, rotorConfig, reflector);
+const enigmini2 = new Enigmini(keymap, rotorConfig2, reflector);
 
-const assignment0 = enigmini.encrypt(plain);
+console.log(`
+# Enigmini results
+0. prove that encryption algorithm works
 
-document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-  <article>
-  <h1>Enigmini results</h1>
-  <div>
-  <h2>a. Prove that my encryption implementation works!<h2>
-  <ul class="table">
-  <p class="label">Plain text ref.:</p>
-  <code>${plain}</code>
-  <p class="label">Encrypted ref:</p>
-  <code>${crypt}</code>
-  <p class="label">Enigmini encryption:</p>
-  <code>${assignment0}</code>
-  </ul>
-  </div>
-  <div>
-  <h2>b. Find plugboard config</h2>
-  <p>b. Gegeven is dezelfde beginconfiguratie als in het voorbeeld, maar met een ander stekkerbord.
-Geef de titel: <code>UCXOMDTVHMAXJCO6PKSJJ5P4Y18EMYUO2KOGDM31QXT31SEV8JH116</code></p>
-  </div>
-<div>
-  <h2>b. Find plugboard config</h2>
-  <p>b. Gegeven is dezelfde beginconfiguratie als b. maar met andere rotoren en reflectoren. Geef
-de titel: <code>0ULW2BHR3SJALF5P2FWCYONLHPFW7YZN84UPQWNKMTYIEYTYN2QE63SJBLFV6SQE9Y27E2</code></p>
-  </div>
-  </article>
-`
+encrypt:
+REF: ${cypher} 
+RES: ${enigmini.encypher(plain)}
 
+decrypt:
+REF: ${plain}
+RES: ${enigmini2.encypher(cypher)}
+`)
 
+// const rotorA = new Rotor(rotor1, 1);
+// const rotorB = new Rotor(rotor2, 1);
 
-console.log('hello world')
+// for(let i= 0; i <= 5; i++) {
+//   console.log(i, rotorA.mapping)
+//   rotorA.update()
+// }
+
+// for(let i= 0; i <= 15; i++) {
+//   console.log(i, rotorB.mapping)
+
+//   rotorB.update()
+// }
+
+await saveToFile('log.txt')
 
 

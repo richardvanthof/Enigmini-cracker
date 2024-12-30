@@ -42,6 +42,15 @@ class Rotor {
             else { return output - input}
         })
     }
+    
+    /**Normalize mutated value to zero-based range and wrap around */
+    normalize(value: number):number {
+        const min = 1;
+        const max = this.mapping.length;
+        const range = max - min + 1;
+
+        return ((value - min) % range + range) % range + min;
+    };
 
     /**Rotate the rotor one step */
     rotate():void {
@@ -53,54 +62,45 @@ class Rotor {
         let lastOperation = this.operations.pop();
         if (lastOperation !== undefined) {
             this.operations.unshift(lastOperation);
-        }
-
-        const max = this.mapping.length;
-        const min = 1
-        const range = max - min + 1;
-
+        };
         
+        /**Generate new output values and mapping based on new operations list. */
         this.mapping = this.mapping.map((value, index) => {
             const [input] = value;
            
             /**Input adjusted by currect mutation */
             const mutation = this.operations[index];
-            let output = input + mutation;
-           
-            /**Normalize mutated value to zero-based range and wrap around */
-            output = ((output - min) % range + range) % range + min; 
+            let output = this.normalize(input + mutation);
+            
             return [input, output, mutation];
-        })
-
-    }
+        });
+    };
 
     /**Increments counter and checks if the offset should be increased. */
     update():void {
         // Update counter
         this.counter++;
 
-        // Check if counter passes the rotate threshold
+        // Check if counter passes the rotate threshold.
         if (this.counter % this.thresh === 0 || this.thresh === 1) {
             this.rotate();
         }
     }
     
     /**Apply substitution cypher to single digit (often character coordinate). */
-    getValue(_input:number, direction: 'FORWARD' | 'REVERSE' = 'FORWARD', debug: boolean = false):number {
+    getValue(_input:number, direction: 'FORWARD' | 'REVERSE' = 'FORWARD'):number {
         
-        let selected;
-        if (direction === 'FORWARD') {
-            selected = this.mapping.find(([inputValue]) => inputValue === _input);
-        } else {
-            selected = this.mapping.find(([, outputValue]) => outputValue === _input);
-        }
+        const selected = this.mapping.find(([inputValue, outputValue]) => {
+            const selector = direction === 'FORWARD' ? inputValue : outputValue
+            return  _input === selector
+        });
         
         // Check if an index was found.
         if(!selected) { throw new Error(`'${_input}' results in an invalid index.`) }
 
         const [input, output] = selected;
         return direction === 'FORWARD' ? output : input;
-       
+        
     }
 }
 
