@@ -166,18 +166,21 @@ class Enigmini {
       encypherDigit = (number:number, debug:boolean = false):number => {
         if(!number || typeof(number) != 'number') {throw new Error('No valid input value provided!')}
 
-        debug && log(`\n## Processing "${number}"`)
-        this.rotors.forEach((rotor:Rotor, index) => {
+        if(debug) {
+          log(`\n## Processing "${number}"`)
+          this.rotors.forEach((rotor:Rotor, index) => {
+            log({rotor: {
+              counter: rotor.counter, 
+              offset: rotor.offset, 
+              offsetNormalized: rotor.normalize(rotor.offset),
+              thresh: rotor.thresh,
+              map: rotor.mapping,
+              id: index+1,
+            }})
+          });
+          log('\n#### Encoding cycle') 
+        }
 
-          debug && log({rotor: {
-            counter: rotor.counter, 
-            offset: rotor.offset, 
-            offsetNormalized: rotor.normalize(rotor.offset),
-            thresh: rotor.thresh,
-            id: index+1,
-          }})
-        });
-        debug && log('\n#### Encoding cycle')
         let result = number;
         debug && log({input: result})
         // encryption pipeline
@@ -187,7 +190,7 @@ class Enigmini {
         
         // 2. Rotors forward
         this.getRotorsInOrder().forEach((rotor, index) => {
-          result = rotor.getValue(result, 'FORWARD', debug);
+          result = rotor.getValue(result, 'FORWARD');
           debug && log({rotor: index+1, result});
         });
 
@@ -199,7 +202,7 @@ class Enigmini {
         
         // 4. Rotors backward
         this.getRotorsInOrder(true).forEach((rotor, index) => {
-          result = rotor.getValue(result, 'REVERSE', debug);
+          result = rotor.getValue(result, 'REVERSE');
           debug && log({rotor: index+1, result});
         });
         
@@ -258,6 +261,8 @@ class Enigmini {
           
           // replace space delimiter with ' '
           encryptedChar = encryptedChar.replace(delimiter, ' ');
+          encryptedChar = encryptedChar.replace('0', ' ');
+          encryptedChar = encryptedChar.replace('1', '!');
 
           // Add encrypted character to cypher text.
           result.push(encryptedChar);

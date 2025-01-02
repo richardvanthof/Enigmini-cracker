@@ -33,17 +33,17 @@ class Rotor {
         if(!mapping) {throw new Error('Mapping config not defined.')}
 
         this.counter = 0;
-        this.offset = 0;
+        this.offset = 1;
         this.thresh = Math.floor(threshold);
         this.mapping = mapping;
         this.operations = this.mapping.map(val => {
             const [input, output, mutation] = val;
             if(mutation) {return mutation}
             else { return output - input}
-        })
+        });
     }
     
-    /**Normalize mutated value to zero-based range and wrap around */
+    /**Normalize mutated value to 1-6 range and wrap around if needed.*/
     normalize(value: number):number {
         const min = 1;
         const max = this.mapping.length;
@@ -80,13 +80,15 @@ class Rotor {
     update():void {
         // Update counter
         this.counter++;
-
+        
         // Check if counter passes the rotate threshold.
-        if (this.counter % this.thresh === 0 || this.thresh === 1) {
+        if ( this.counter % this.thresh == 0 || this.thresh === 1) {
+            // console.log('rotate triggered at count', this.counter)
             this.rotate();
         }
     }
-    
+
+   
     /**Apply substitution cypher to single digit (often character coordinate). */
     getValue(_input:number, direction: 'FORWARD' | 'REVERSE' = 'FORWARD'):number {
         

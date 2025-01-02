@@ -20,8 +20,8 @@ describe("Rotor", ()=> {
             expect(rotor).toBeInstanceOf(Rotor);
 
             // Check if default values are correct.
-            expect(rotor.counter).toBe(0);
-            expect(rotor.offset).toBe(0);
+            expect(rotor.counter).toBe(1);
+            expect(rotor.offset).toBe(1);
             expect(rotor.thresh).toBe(thresh);
         });
 
@@ -110,6 +110,8 @@ describe("Rotor", ()=> {
                 [6, 1, 1]
             ],
         ];
+
+
         it('rotates opertaions', ()=> {
             const rotor = new Rotor(testPairs);
             
@@ -172,7 +174,7 @@ describe("Rotor", ()=> {
     describe('Update rotor', () => {
         it('updates counter', () => {
             const rotor = new Rotor(testPairs, 100);
-            for(let i = 0; i < 10; i++){
+            for(let i = 1; i < 10; i++){
                 expect(rotor.counter).toBe(i);
                 rotor.update();
             };
@@ -202,7 +204,35 @@ describe("Rotor", ()=> {
         });
     });
 
+    // it(`Nadat een getal door de Enigmini is 
+    //     gehaald draait rotor 1 een slag met de klok mee. 
+    //     Elke zesde rotatie van rotor 1 draait 
+    //     rotor 2 ook één slag verder`, () => {
+    //         let rotor1 = {
+    //             counter: 1,
+    //             pos: 1
+    //         };
+    //         let rotor2 = {
+    //             counter: 1,
+    //             pos: 1,
+    //         };
 
+    //         for(let cycle = 0; cycle <= 13; cycle++) {
+    //             console.log({cycle, rotor1, rotor2});
+    //             [rotor1, rotor2].forEach(rotor => {
+    //                 rotor.counter++
+    //             })
+
+    //             rotor1.pos++
+    //             if((rotor2.counter) % 6 == 0){
+    //                 rotor2.pos++
+    //             }
+
+                
+    //         }
+
+
+    //     })
 
     // describe(('apply offset to index'), () => {
 

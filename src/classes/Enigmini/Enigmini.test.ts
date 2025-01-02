@@ -77,7 +77,7 @@ describe("Enigmini", () => {
 
     it("ignores letter casing", () => {
       const enigmini:Enigmini = new Enigmini(keymap, rotorConfig, reflector);
-      const charPos:Pos = enigmini.findCharacterPosition("k") // ignores case.
+      const charPos:Pos = eni gmini.findCharacterPosition("k") // ignores case.
       expect(charPos).toEqual({ row: 2, col: 2 });
     });
 
