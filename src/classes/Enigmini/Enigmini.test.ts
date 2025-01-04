@@ -24,23 +24,8 @@ const reflector = [
   [6, 3]
 ];
 
-const rotor1 = [
-  [1, 2, 1],
-  [2, 5, 3],
-  [3, 4, 1],
-  [4, 6, 2],
-  [5, 1, 2],
-  [6, 3, 3]
-];
-
-const rotor2 = [
-  [1, 3, 2],
-  [2, 1, -1],
-  [3, 5, 2],
-  [4, 6, 2],
-  [5, 2, 3],
-  [6, 4, -2]
-];
+const rotor1 = [1, 3, 1, 2, 2, 3];
+const rotor2 = [2, -1, 2, 2, 3, -2];
 
 const plain = "DEZE VOORBEELDTEKST IS VERCIJFERD MET DE ENIGMINI!";
 const crypt = "KRY8D1D37CRLE9NS906LJ4D1KVT2ZDL4KHU86LF8D5AC1OYMJE";
@@ -77,7 +62,7 @@ describe("Enigmini", () => {
 
     it("ignores letter casing", () => {
       const enigmini:Enigmini = new Enigmini(keymap, rotorConfig, reflector);
-      const charPos:Pos = eni gmini.findCharacterPosition("k") // ignores case.
+      const charPos:Pos = enigmini.findCharacterPosition("k") // ignores case.
       expect(charPos).toEqual({ row: 2, col: 2 });
     });
 
@@ -212,14 +197,14 @@ describe("Enigmini", () => {
 
       const plain = 'D';
       const cypher = 'K';
-      expect(enigmini.encypher(plain)).toBe(cypher); // Encrypt
+      expect(enigmini.encrypt(plain)).toBe(cypher); // Encrypt
     });
 
     it("encrypt/decrypt scentence", () => {
       const rotorConfig = [new Rotor(rotor1, 1), new Rotor(rotor2, 6)];
       const enigmini = new Enigmini(keymap, rotorConfig, reflector);
 
-      expect(enigmini.encypher(crypt, true)).toBe(plain); // Encrypt
+      expect(enigmini.decrypt(crypt, plain)).toBe(plain); // Encrypt
     });                                              
   })
 });
