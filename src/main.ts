@@ -20,120 +20,28 @@ const reflector = [
 [6, 3]
 ];
 
-const rotor1 = [
-  [
-      [1, 2, 1],
-      [2, 5, 3],
-      [3, 4, 1],
-      [4, 6, 2],
-      [5, 1, 2],
-      [6, 3, 3]
-  ],
-  [
-      [1, 4, 3],
-      [2, 3, 1],
-      [3, 6, 3],
-      [4, 5, 1],
-      [5, 1, 2],
-      [6, 2, 2]
-  ],
-  [
-      [1, 3, 2],
-      [2, 5, 3],
-      [3, 4, 1],
-      [4, 1, 3],
-      [5, 6, 1],
-      [6, 2, 2]
-  ],
-  [
-      [1, 3, 2],
-      [2, 4, 2],
-      [3, 6, 3],
-      [4, 5, 1],
-      [5, 2, 3],
-      [6, 1, 1]
-  ],
-  [
-      [1, 2, 1],
-      [2, 4, 2],
-      [3, 5, 2],
-      [4, 1, 3],
-      [5, 6, 1],
-      [6, 3, 3]
-  ],
-  [
-      [1, 4, 3],
-      [2, 3, 1],
-      [3, 5, 2],
-      [4, 6, 2],
-      [5, 2, 3],
-      [6, 1, 1]
-  ],
-];
-
-const rotor2 = [
-  [
-    [1, 3, 2],
-    [2, 1, -1],
-    [3, 5, 2],
-    [4, 6, 2],
-    [5, 2, 3],
-    [6, 4, -2]
-  ],
-  [
-    [1, 5, -2],
-    [2, 4, 2],
-    [3, 2, -1],
-    [4, 6, 2],
-    [5, 1, 2],
-    [6, 3, 3]
-  ],
-  [
-    [1, 4, 3],
-    [2, 6, -2],
-    [3, 5, 2],
-    [4, 3, -1],
-    [5, 1, 2],
-    [6, 2, 2]
-  ],
-  [
-    [1, 3, 2],
-    [2, 4, 2],
-    [3, 6, 3],
-    [4, 6, 2],
-    [5, 4, -1],
-    [6, 2, 2]
-  ],
-  [
-    [1, 3, 2],
-    [2, 4, 2],
-    [3, 6, 3],
-    [4, 2, -2],
-    [5, 1, 2],
-    [6, 5, -1]
-  ],
-  [
-    [1, 6, -1],
-    [2, 4, 2],
-    [3, 5, 2],
-    [4, 1, 3],
-    [5, 3, -2],
-    [6, 2, 2]
-  ]
-];
+const operations = {
+  rotor1: [1, 3, 1, 2, 2, 3],
+  rotor2: [2, -1, 2, 2, 3, -2]
+}
 
 // Reference string
 const plain = "DEZE VOORBEELDTEKST IS VERCIJFERD MET DE ENIGMINI!";
 const cypher = "KRY8D1D37CRLE9NS906LJ4D1KVT2ZDL4KHU86LF8D5AC1OYMJE";
 
-const rotorConfig = [new Rotor(rotor1[0], 1), new Rotor(rotor2[0], 6)];
-const rotorConfig2 = [new Rotor(rotor1[0], 1), new Rotor(rotor2[0], 6)];
+const rotorConfig = [new Rotor(operations.rotor1, 1), new Rotor(operations.rotor2, 6)];
+
+const rotorA = new Rotor(operations.rotor1, 1);
+const rotorB = new Rotor(operations.rotor2, 6);
 
 const enigmini = new Enigmini(keymap, rotorConfig, reflector);
-const enigmini2 = new Enigmini(keymap, rotorConfig2, reflector);
+const enigmini2 = new Enigmini(keymap, [rotorA, rotorB], reflector);
 
-const encryption = markDiffs(enigmini.encypher(plain, true), cypher);
-const decrpytion = markDiffs(enigmini2.encypher(cypher), plain);
+const encryption = markDiffs(enigmini.encrypt(plain, cypher), cypher);
+const decrpytion = markDiffs(enigmini2.decrypt(cypher), plain);
+
+console.log('# Rotor mappings');
+console.log('Rotor 1', rotorA.mappings, 'Rotor 2', rotorB.mappings);
 
 console.log(`
 # Enigmini results

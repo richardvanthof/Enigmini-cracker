@@ -1,5 +1,5 @@
 import type Rotor from "../Rotor/Rotor";
-import log from '../../lib/Logger';
+import { logToCSV } from "../../lib/Logger";
 /**
  * Specifies coordinate for character in keymap
  */
@@ -7,7 +7,7 @@ export interface Pos {
   row: number,
   col: number,
   subIndex?: number
-}
+};
 
 /**
  * Enigmini is a class that implements an Enigma-like encryption machine.
@@ -29,6 +29,7 @@ class Enigmini {
     readonly plugBoard?: number[][];
     readonly reflector?: number[][]
     readonly rotors: Rotor[];
+    log: Map<string, any>[];
 
     constructor(
         keyMap: (string | string[])[][],
@@ -45,6 +46,7 @@ class Enigmini {
         this.plugBoard = plugBoard;
         this.rotors = rotorsConfig;
         this.reflector = reflectorConfig;
+        this.log = [];
 
       }
       /** 
@@ -90,7 +92,7 @@ class Enigmini {
         });
 
         if(!normalizedPos) {
-          throw new Error(`Character ${normalizedChar} not found in keymap.`);
+          throw new Error(`Character '${normalizedChar}' not found in keymap.`);
         }
 
         return normalizedPos;
@@ -149,7 +151,7 @@ class Enigmini {
         })) {
           // if value is in a plugboard, remap it.
           const result = this.remapValue(value, this.plugBoard);
-          log({plugboard: result})
+          // log({plugboard: result})
           return result;
         } else {
           // if value is not in a plugboard, pass it through.
@@ -163,47 +165,40 @@ class Enigmini {
       }
       
       /**Encrypt/decrypt single digit (often character position coordinate). */
-      encypherDigit = (number:number, debug:boolean = false):number => {
+      encypherDigit = (number:number, debug:string|false = false):number => {
+        this.log.push(new Map());
+        const log = this.log[this.log.length - 1];
+
         if(!number || typeof(number) != 'number') {throw new Error('No valid input value provided!')}
 
         if(debug) {
-          log(`\n## Processing "${number}"`)
-          this.rotors.forEach((rotor:Rotor, index) => {
-            log({rotor: {
-              counter: rotor.counter, 
-              offset: rotor.offset, 
-              offsetNormalized: rotor.normalize(rotor.offset),
-              thresh: rotor.thresh,
-              map: rotor.mapping,
-              id: index+1,
-            }})
-          });
-          log('\n#### Encoding cycle') 
+          log.set('updated', this.rotors[0].counter)
+          this.rotors.forEach((rotor:Rotor, index) => log.set(`Rotor ${index+1} position`, rotor.position))
+          log.set('Coordinate', number)
         }
 
         let result = number;
-        debug && log({input: result})
         // encryption pipeline
         
         // 1. apply plugboard
         result = this.applyPlugBoard(result);  // apply plugboard
-        
+        (debug && this.plugBoard) && log.set('> Plugboard', result);
         // 2. Rotors forward
         this.getRotorsInOrder().forEach((rotor, index) => {
           result = rotor.getValue(result, 'FORWARD');
-          debug && log({rotor: index+1, result});
+          debug && log.set(`> Rotor ${index+1}`, result);
         });
 
         // 3. apply reflector
         if(this.reflector) {
           result = this.remapValue(result, this.reflector); // apply reflector
-          debug && log({reflector: result})
+          debug && log.set('Reflector', result);
         }
         
         // 4. Rotors backward
         this.getRotorsInOrder(true).forEach((rotor, index) => {
           result = rotor.getValue(result, 'REVERSE');
-          debug && log({rotor: index+1, result});
+          debug && log.set(`< Rotor ${this.rotors.length - (index)}`, result);
         });
         
         // 5. apply plugboard*
@@ -213,35 +208,31 @@ class Enigmini {
         // het ontcijferingsteam van Piconesië ontdekte dat het stekkerbord 
         // verkeerd is geïmplementeerd en maar in één richting werkt. 
         // In de andere richting wordt het stekkerbord overgeslagen.
-        debug && log({result});
         
         // Update rotor counters
         this.rotors.forEach((rotor:Rotor) => rotor.update());
-        
         //If available, apply plugboard
         return result;
       };
       
       /**Encrypt/decrypt string */
-      encypher(plain: string, debug: boolean = false) {
-
+      encypher(plain: string, debug: string|false = false) {
+        let allLogs:Map<string,unknown>[] = [];
         /**Normalize string to UPPERCASE*/
-        const normalizedPlain = plain.toUpperCase();
-        let counter = 1;
-        let result = [];
+        let normalizedPlain = plain.toUpperCase().split('');
+        let result:string[] = [];
         const delimiter = '#';
-        
+
         // Loop through each character of string
-        for (let _char of normalizedPlain) {
+
+        normalizedPlain.forEach((_char, index) => {	
           
           // replace spaces with #-character
-          const char = _char.replace(' ', delimiter)
-          debug && log(`\n\n# Encrypting '${char}'`)
+          const char = _char.replace(' ', delimiter);
           
           /** Find the position (ROW, COLUMN, SUBSTRING?] 
            * of the character in the key map */
           const pos: Pos = this.findCharacterPosition(char);
-          debug && log(pos)
           
           /**Encypher each coordinate. */
           const encryptedPos = {
@@ -252,26 +243,54 @@ class Enigmini {
 
           /**Transform coordinate to character. */
           let encryptedChar:string = this.positionToChar(encryptedPos);
-          debug && log('\n## Result')
-          debug && log({...encryptedPos, encryptedChar})
           
           if(!encryptedChar) {
-            throw new Error(`Missing char '${char}' at index: ${counter}`)
+            throw new Error(`Missing char '${char}'`)
           }
           
-          // replace space delimiter with ' '
-          encryptedChar = encryptedChar.replace(delimiter, ' ');
-          encryptedChar = encryptedChar.replace('0', ' ');
-          encryptedChar = encryptedChar.replace('1', '!');
+          /**Log all actions to a csv for debugging.*/
+          if(debug && typeof debug === 'string') {
+            const targetChar = debug[index];
+            const targetPosition:number[] = Object.values(this.findCharacterPosition(targetChar));
+            const pos = [encryptedPos.row, encryptedPos.col];
+
+            this.log.forEach((coordinateLog, index) => {
+              this.log[index] = new Map([
+                ['Character IN', char],
+                ...coordinateLog,
+                ['Character OUT', encryptedChar],
+                ['Target coordinate', targetPosition[index]],
+                ['Target character', targetChar],
+                ['Match', (pos[index] === targetPosition[index])]
+              ]);
+            });
+            allLogs.push(...this.log);
+            this.log = [];
+          };
 
           // Add encrypted character to cypher text.
           result.push(encryptedChar);
-          counter++;
-        }
-        
+    
+        });
+
+        debug && logToCSV(allLogs, `logs/log-${new Date().getTime()}.csv`);
         // Return the encrypted text
         return result.join("");
       }
+
+      encrypt(plain: string, debug: string|false = false) {
+        const delimitedPlain = plain
+        .replaceAll(' ', '#')
+        .replaceAll('!', '1');
+
+        return this.encypher(delimitedPlain, debug);
+      };
+
+      decrypt(cypher: string, debug: string|false = false) {
+        return this.encypher(cypher, debug)
+        .replaceAll('0', ' ')
+        .replaceAll('1', '!');
+      };
 }
 
 export default Enigmini;

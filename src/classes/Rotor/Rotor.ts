@@ -20,33 +20,49 @@
 class Rotor {
     // Types
     counter: number;
-    offset: number;
+    position: number;
     readonly thresh: number;
-    mapping: number[][];
+    mappings: number[][][];
     operations: number[];
 
     constructor(
-        mapping:number[][], 
-        threshold:number=1
+        _operations:number[], 
+        _threshold:number=1
     ) {
-        if(threshold < 1) {throw new Error('Threshold cannot be smaller than 1.')}
-        if(!mapping) {throw new Error('Mapping config not defined.')}
+        if(_threshold < 1) {throw new Error('Threshold cannot be smaller than 1.')}
+        if(!_operations) {throw new Error('Operations config not defined.')}
 
         this.counter = 0;
-        this.offset = 1;
-        this.thresh = Math.floor(threshold);
-        this.mapping = mapping;
-        this.operations = this.mapping.map(val => {
-            const [input, output, mutation] = val;
-            if(mutation) {return mutation}
-            else { return output - input}
+        this.position = 1;
+        this.thresh = Math.floor(_threshold);
+        this.operations = _operations;
+        this.mappings = this.generateMappings();
+    }
+
+    /**Generate a list of mappings for each rotor position based on the initial operations list. */
+    generateMappings():number[][][] {
+        return this.operations.map(() => {
+            
+            /**Generate the list of value pairs. */
+            const positions = this.operations.map((operation: number, index: number) => {
+                const inVal = index + 1;
+                return [inVal, this.normalize(inVal + operation)]
+            }); 
+
+            /**shift the operations list forward for next list*/
+            let lastOperation = this.operations.pop();
+            if (lastOperation !== undefined) {
+                this.operations.unshift(lastOperation);
+            };
+
+            return positions;
         });
     }
     
     /**Normalize mutated value to 1-6 range and wrap around if needed.*/
     normalize(value: number):number {
         const min = 1;
-        const max = this.mapping.length;
+        const max = this.operations.length;
         const range = max - min + 1;
 
         return ((value - min) % range + range) % range + min;
@@ -54,26 +70,11 @@ class Rotor {
 
     /**Rotate the rotor one step */
     rotate():void {
-
-        /**Update offset counter */
-        this.offset++;
-
-        /**shift the operations list */
-        let lastOperation = this.operations.pop();
-        if (lastOperation !== undefined) {
-            this.operations.unshift(lastOperation);
-        };
-        
-        /**Generate new output values and mapping based on new operations list. */
-        this.mapping = this.mapping.map((value, index) => {
-            const [input] = value;
-           
-            /**Input adjusted by currect mutation */
-            const mutation = this.operations[index];
-            let output = this.normalize(input + mutation);
-            
-            return [input, output, mutation];
-        });
+        if(this.position === this.mappings.length) {
+            this.position = 1;
+        } else {
+            this.position++;
+        }
     };
 
     /**Increments counter and checks if the offset should be increased. */
@@ -91,10 +92,14 @@ class Rotor {
    
     /**Apply substitution cypher to single digit (often character coordinate). */
     getValue(_input:number, direction: 'FORWARD' | 'REVERSE' = 'FORWARD'):number {
+
+        /**Get current rotor mapping */
+        const mapping = this.mappings[this.position - 1];
         
-        const selected = this.mapping.find(([inputValue, outputValue]) => {
+        /**find correct valuepair for the input */
+        const selected = mapping.find(([inputValue, outputValue]) => {
             const selector = direction === 'FORWARD' ? inputValue : outputValue
-            return  _input === selector
+            return  _input === selector;
         });
         
         // Check if an index was found.
