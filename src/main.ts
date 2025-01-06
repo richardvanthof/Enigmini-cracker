@@ -1,6 +1,8 @@
 import Enigmini from './classes/Enigmini/Enigmini';
 import Rotor from './classes/Rotor/Rotor';
-import {saveToFile, markDiffs} from './lib/Logger';
+import generatePlugCombinations from './analysis/generatepPlugboards/generatePlugboards.js';
+import {logToCSV, markDiffs} from './lib/Logger';
+
 
 const keymap = [
   ["O", "N", ["1", "!"], "C", "S", "X"],
@@ -40,11 +42,30 @@ const enigmini2 = new Enigmini(keymap, [rotorA, rotorB], reflector);
 const encryption = markDiffs(await enigmini.encrypt(plain), cypher);
 const decrpytion = markDiffs(await enigmini2.decrypt(cypher), plain);
 
+console.log('INITIATING ENIGMINI CRACKER...')
 
 const assignment1 = async () => {
-  const enigmini = new Enigmini(keymap, rotorConfig, reflector);
-  return await enigmini.decrypt('UCXOMDTVHMAXJCO6PKSJJ5P4Y18EMYUO2KOGDM31QXT31SEV8JH116.');
+  try {
+  console.log('generating plugboard combinations');
+  const input = 'UCXOMDTVHMAXJCO6PKSJJ5P4Y18EMYUO2KOGDM31QXT31SEV8JH116.';
+  const plugboards = await generatePlugCombinations([1,2,3,4,5,6])
+  const results:Map<string, unknown>[] = [];
+  for (const [index, plugs] of plugboards.entries()) {
+    console.log(`Trying plug config ${index+1} of ${plugboards.length}`)
+    const enigmini = new Enigmini(keymap, rotorConfig, reflector, plugs);
+    const res = await enigmini.decrypt(input);
+    results.push(new Map([
+      ['plain', res]
+    ]));
+  }
+  logToCSV(results, `results/assignment1/assignment1-${new Date().getTime()}.csv`)
+  return '> Results saved in "results/assignment1"'  
+} catch(err) {
+    console.error(err)
+  }
 }
+
+
 console.log(`
 # Enigmini results
 0. prove that encryption algorithm works
@@ -63,7 +84,5 @@ Differences: ${decrpytion.count} (${decrpytion.count/plain.length*100}%)
 Geef de titel voor 'UCXOMDTVHMAXJCO6PKSJJ5P4Y18EMYUO2KOGDM31QXT31SEV8JH116.'
 ${await assignment1()}
 `);
-
-await saveToFile('log.txt')
 
 

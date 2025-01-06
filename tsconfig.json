@@ -20,7 +20,8 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
     "sourceMap": true,
-    "removeComments": true
+    "removeComments": true,
+    "moduleResolution": "nodenext"
   },
   "include": ["src"]
 }

@@ -155,17 +155,17 @@ class Enigmini {
         
         if( direction === 'SYMMETRIC') {
       
-          const found = map.find((current):boolean => current.some(val => val === value));
+          const found = map.find((current):boolean => current.some(val => val == value));
           if (!found) {
             throw new Error(`Value ${value} not found in map!`);
           }
           const [input, output] = found;
-          if (value === input) { return output}
+          if (value == input) { return output}
           else { return input}
         } else {
-          const index = map.findIndex((val) => value === (direction === 'REVERSE' ? val[1] : val[0]));
+          const index = map.findIndex((val) => value == (direction == 'REVERSE' ? val[1] : val[0]));
           if (index === -1) { throw new Error(`Value ${value} not found in map!`) }
-          return direction === 'REVERSE' ? map[index][0] : map[index][1];
+          return direction == 'REVERSE' ? map[index][0] : map[index][1];
         }
       }
 

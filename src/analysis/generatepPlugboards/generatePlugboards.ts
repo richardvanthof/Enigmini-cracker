@@ -1,5 +1,5 @@
 // Function to generate all combinations of swaps for the plugboard
-function generatePlugCombinations(numbers: number[]): number[][][] {
+async function generatePlugCombinations(numbers: number[]): number[][][] {
     if(numbers.length % 2 !== 0) { throw new Error('Options have to be an even amount.')}
     let results: number[][][] = [];
   
