@@ -57,20 +57,20 @@ describe("Enigmini", () => {
     it("handles single char", () => {
       const enigmini:Enigmini = new Enigmini(keymap, rotorConfig, reflector);
       const charPos:Pos = enigmini.findCharacterPosition("K")
-      expect(charPos).toEqual({ row: 2, col: 2 });
+      expect(charPos).toEqual({ row: 5, col: 2 });
     });
 
     it("ignores letter casing", () => {
       const enigmini:Enigmini = new Enigmini(keymap, rotorConfig, reflector);
       const charPos:Pos = enigmini.findCharacterPosition("k") // ignores case.
-      expect(charPos).toEqual({ row: 2, col: 2 });
+      expect(charPos).toEqual({ row: 5, col: 2 });
     });
 
     it("throws error for unknown character", () => {
       const target = '@';
       const enigmini:Enigmini = new Enigmini(keymap, rotorConfig, reflector);
       expect(()=>enigmini.findCharacterPosition(target))
-      .toThrow(`Character ${target} not found in keymap.`);
+      .toThrow(`Character '${target}' not found in keymap.`);
     });
 
   
@@ -78,10 +78,10 @@ describe("Enigmini", () => {
     it("handles multiple chars", () => {
       const string = "DEZE";
       const target = [
-        { row: 4, col: 6 }, // D
-        { row: 3, col: 4 }, // E
-        { row: 4, col: 2 }, // Z
-        { row: 3, col: 4 }  // E
+        { row: 3, col: 6 }, // D
+        { row: 4, col: 4 }, // E
+        { row: 3, col: 2 }, // Z
+        { row: 4, col: 4 }  // E
       ];
       
       const enigmini = new Enigmini(keymap, rotorConfig, reflector);
@@ -96,7 +96,7 @@ describe("Enigmini", () => {
     it("handles fetching special characters", () => {
       const enigmini = new Enigmini(keymap, rotorConfig, reflector);
       expect(enigmini.findCharacterPosition(";")).toEqual({
-        row: 1,
+        row: 6,
         col: 1,
         subIndex: 1
       });
@@ -107,14 +107,14 @@ describe("Enigmini", () => {
     const rotorConfig = [new Rotor(rotor1, 1), new Rotor(rotor2, 6)];
     it("translate pos to char", () => {
       const enigmini = new Enigmini(keymap, rotorConfig, reflector);
-      expect(enigmini.positionToChar({ row: 6, col: 6 })).toBe("X"); // fetch char
-      expect(enigmini.positionToChar({ row: 1, col: 1, subIndex: 1 })).toBe(";"); // fetch special char.
+      expect(enigmini.positionToChar({ row: 6, col: 6 })).toBe("V"); // fetch char
+      expect(enigmini.positionToChar({ row: 6, col: 1, subIndex: 1 })).toBe(";"); // fetch special char.
     });
 
     it("replace missing secondary with primary character.", () => {
       const enigmini = new Enigmini(keymap, rotorConfig, reflector);
-      expect(enigmini.positionToChar({ row: 2, col: 2, subIndex: 1 })).toBe("K");
-      expect(enigmini.positionToChar({ row: 2, col: 2, subIndex: 0 })).toBe("K");
+      expect(enigmini.positionToChar({ row: 2, col: 2, subIndex: 1 })).toBe("G");
+      expect(enigmini.positionToChar({ row: 2, col: 2, subIndex: 0 })).toBe("G");
     });
 
     // it('Throws error if no valid char is returned', ()=> {
@@ -191,20 +191,20 @@ describe("Enigmini", () => {
   });
   
   describe("encryption/decryption", () => {
-    it("encrypt/decrypt single character", () => {
+    it("encrypt/decrypt single character", async () => {
       const rotorConfig = [new Rotor(rotor1, 1), new Rotor(rotor2, 6)];
       const enigmini = new Enigmini(keymap, rotorConfig, reflector);
 
       const plain = 'D';
       const cypher = 'K';
-      expect(enigmini.encrypt(plain)).toBe(cypher); // Encrypt
+      expect(await enigmini.encrypt(plain)).toBe(cypher); // Encrypt
     });
 
-    it("encrypt/decrypt scentence", () => {
+    it("encrypt/decrypt scentence", async () => {
       const rotorConfig = [new Rotor(rotor1, 1), new Rotor(rotor2, 6)];
       const enigmini = new Enigmini(keymap, rotorConfig, reflector);
 
-      expect(enigmini.decrypt(crypt, plain)).toBe(plain); // Encrypt
+      expect(await enigmini.decrypt(crypt, plain)).toBe(plain); // Encrypt
     });                                              
   })
 });

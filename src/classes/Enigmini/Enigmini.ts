@@ -29,7 +29,8 @@ class Enigmini {
     readonly plugBoard?: number[][];
     readonly reflector?: number[][]
     readonly rotors: Rotor[];
-    log: Map<string, any>[];
+    private readonly specialCharsMap: string[][];
+    private log: Map<string, any>[];
 
     constructor(
         keyMap: (string | string[])[][],
@@ -46,6 +47,7 @@ class Enigmini {
         this.plugBoard = plugBoard;
         this.rotors = rotorsConfig;
         this.reflector = reflectorConfig;
+        this.specialCharsMap = this.getSpecialCharsMap();
         this.log = [];
 
       }
@@ -132,7 +134,7 @@ class Enigmini {
       }
       
       /**Remap one value to a prespecified other value */
-      remapValue(value: number|string, map:number[][], reverse: boolean = false):number {
+      remapValue(value: number|string, map: (number|string)[][], reverse: boolean = false):number|string {
         // Input validation
         if (!map) { throw new Error('Remap config not found!') }
         if (value === undefined || value === null) { throw new Error('Input value not found!') }
@@ -152,7 +154,11 @@ class Enigmini {
           // if value is in a plugboard, remap it.
           const result = this.remapValue(value, this.plugBoard);
           // log({plugboard: result})
-          return result;
+          if(typeof result === 'number') {
+            return result;
+          } else {
+            throw new Error(`'${value}' result in invalid pluboard output '${result}'`)
+          }
         } else {
           // if value is not in a plugboard, pass it through.
           return value;
@@ -191,7 +197,14 @@ class Enigmini {
 
         // 3. apply reflector
         if(this.reflector) {
-          result = this.remapValue(result, this.reflector); // apply reflector
+          const reflected = this.remapValue(result, this.reflector); // apply reflector
+          
+          if(typeof reflected === 'number') {
+            result = reflected
+          } else {
+            throw new Error(`'${result}' is not a valid reflector output. Expected a number.`)
+          };
+
           debug && log.set('Reflector', result);
         }
         
@@ -216,7 +229,7 @@ class Enigmini {
       };
       
       /**Encrypt/decrypt string */
-      encypher(plain: string, debug: string|false = false) {
+      async encypher(plain: string, debug: string|false = false) {
         let allLogs:Map<string,unknown>[] = [];
         /**Normalize string to UPPERCASE*/
         let normalizedPlain = plain.toUpperCase().split('');
@@ -278,13 +291,31 @@ class Enigmini {
         return result.join("");
       }
 
-      encrypt(plain: string, debug: string|false = false) {
+      private getSpecialCharsMap():string[][] {
+        let pairs:string[][] = [];
+        this.keyMap.forEach(row => { 
+          row.forEach(cell => {
+            if(Array.isArray(cell)) { pairs.push(cell)}
+          })
+        })
+        return pairs;
+      }
 
-        return this.encypher(plain, debug);
+      async encrypt(plain: string, debug: string|false = false) {
+        let normalized = plain
+        this.specialCharsMap.forEach(([delimiter, char]) => {
+          normalized.replaceAll(char, delimiter)
+        });
+        
+        return await this.encypher(normalized, debug)
       };
 
-      decrypt(cypher: string, debug: string|false = false) {
-        return this.encypher(cypher, debug);
+      async decrypt(cypher: string, debug: string|false = false) {
+        let plain = await this.encypher(cypher, debug);
+        this.specialCharsMap.forEach(([delimiter, char]) => {
+          plain.replaceAll(delimiter, char)
+        });
+        return plain
       };
 }
 

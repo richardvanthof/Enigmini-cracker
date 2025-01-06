@@ -37,8 +37,8 @@ const rotorB = new Rotor(operations.rotor2, 6);
 const enigmini = new Enigmini(keymap, rotorConfig, reflector);
 const enigmini2 = new Enigmini(keymap, [rotorA, rotorB], reflector);
 
-const encryption = markDiffs(enigmini.encrypt(plain, cypher), cypher);
-const decrpytion = markDiffs(enigmini2.decrypt(cypher), plain);
+const encryption = markDiffs(await enigmini.encrypt(plain), cypher);
+const decrpytion = markDiffs(await enigmini2.decrypt(cypher), plain);
 
 console.log('# Rotor mappings');
 console.log('Rotor 1', rotorA.mappings, 'Rotor 2', rotorB.mappings);
