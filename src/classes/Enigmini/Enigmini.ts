@@ -42,7 +42,7 @@ class Enigmini {
         if(!rotorsConfig) {throw new Error('Rotors not defined')}
 
 
-        this.keyMap = structuredClone(keyMap).reverse();
+        this.keyMap = structuredClone(keyMap);
         this.plugBoard = plugBoard;
         this.rotors = rotorsConfig;
         this.reflector = reflectorConfig;

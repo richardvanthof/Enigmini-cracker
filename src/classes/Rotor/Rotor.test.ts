@@ -1,6 +1,5 @@
 import {describe, expect, it} from 'vitest'
 import Rotor from './Rotor';
-import test from 'node:test';
 
 describe("Rotor", ()=> {
     const testPairs = [1, 3, 1, 2, 2, 3];
