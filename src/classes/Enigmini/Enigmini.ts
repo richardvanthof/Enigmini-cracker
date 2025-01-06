@@ -1,6 +1,5 @@
 import type Rotor from "../Rotor/Rotor";
 import { logToCSV } from "../../lib/Logger";
-import { delimiter } from "path";
 /**
  * Specifies coordinate for character in keymap
  */
@@ -134,15 +133,40 @@ class Enigmini {
           throw new Error(`Invalid cell content '${cell}' at row ${pos.row} and col ${pos.col}].`);
       }
       
-      /**Remap one value to a prespecified other value */
-      private remapValue(value: number|string, map: (number|string)[][], reverse: boolean = false):number|string {
+      /**
+       * Remap one value to a prespecified other value 
+       * ```typescript
+       * const map = [[1,2], [3, 4], [5, 6]]
+       * const value = 3
+       * const res = this.remapValue(value, map, 'DEFAULT')
+       * // outputs '4'.
+       * ```
+       * @remarks
+       * - map: should be an array of value pairs (strings and/or numbers).
+       * - Remap directions
+       *   - `DEFAULT`: looks for value pair only in left row and then outputs coupled right row.
+       *   - `REVERSE`: looks for value pair only in right row and then output coupled left value.
+       *   - `SYMMETRIC`: looks for value pair in both rows and outpurs opposite coupled value.
+       * */
+      private remapValue(value: number|string, map: (number|string)[][], direction: 'DEFAULT'|'REVERSE'|'SYMMETRIC' = 'DEFAULT'):number|string {
         // Input validation
         if (!map) { throw new Error('Remap config not found!') }
         if (value === undefined || value === null) { throw new Error('Input value not found!') }
-
-        const index = map.findIndex((val) => value === (reverse ? val[1] : val[0]));
-        if (index === -1) { throw new Error(`Value ${value} not found in map!`) }
-        return reverse ? map[index][0] : map[index][1];
+        
+        if( direction === 'SYMMETRIC') {
+      
+          const found = map.find((current):boolean => current.some(val => val === value));
+          if (!found) {
+            throw new Error(`Value ${value} not found in map!`);
+          }
+          const [input, output] = found;
+          if (value === input) { return output}
+          else { return input}
+        } else {
+          const index = map.findIndex((val) => value === (direction === 'REVERSE' ? val[1] : val[0]));
+          if (index === -1) { throw new Error(`Value ${value} not found in map!`) }
+          return direction === 'REVERSE' ? map[index][0] : map[index][1];
+        }
       }
 
     
@@ -287,6 +311,7 @@ class Enigmini {
         });
 
         debug && logToCSV(allLogs, `logs/log-${new Date().getTime()}.csv`);
+        
         // Return the encrypted text
         return result.join("");
       }
@@ -320,9 +345,8 @@ class Enigmini {
       }
 
       async encrypt(plain: string, debug: string|false = false) {
-        let normalized = this.delimit(plain)
-        
-        return await this.encypher(normalized, debug)
+        let delimited = this.delimit(plain)
+        return await this.encypher(delimited, debug)
       };
 
       async decrypt(cypher: string, debug: string|false = false) {
