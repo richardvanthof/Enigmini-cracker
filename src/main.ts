@@ -40,9 +40,11 @@ const enigmini2 = new Enigmini(keymap, [rotorA, rotorB], reflector);
 const encryption = markDiffs(await enigmini.encrypt(plain), cypher);
 const decrpytion = markDiffs(await enigmini2.decrypt(cypher), plain);
 
-console.log('# Rotor mappings');
-console.log('Rotor 1', rotorA.mappings, 'Rotor 2', rotorB.mappings);
 
+const assignment1 = async () => {
+  const enigmini = new Enigmini(keymap, rotorConfig, reflector);
+  return await enigmini.decrypt('UCXOMDTVHMAXJCO6PKSJJ5P4Y18EMYUO2KOGDM31QXT31SEV8JH116.');
+}
 console.log(`
 # Enigmini results
 0. prove that encryption algorithm works
@@ -56,6 +58,10 @@ Decrypt:
 REF: ${decrpytion.ref}
 RES: ${decrpytion.diff}
 Differences: ${decrpytion.count} (${decrpytion.count/plain.length*100}%)
+
+1. Gegeven is dezelfde beginconfiguratie als in het voorbeeld, maar met een ander stekkerbord.
+Geef de titel voor 'UCXOMDTVHMAXJCO6PKSJJ5P4Y18EMYUO2KOGDM31QXT31SEV8JH116.'
+${await assignment1()}
 `);
 
 await saveToFile('log.txt')
