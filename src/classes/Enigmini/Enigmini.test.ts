@@ -251,6 +251,79 @@ describe("Enigmini", () => {
     it('delimits plain (encryption)', ()=> {
       // @ts-expect-error testing internal function
       expect(enigmini.delimit(`!?.’":_,; `, 'DEFAULT')).toBe('1234567890');
+    });
+  });
+
+  describe('Plugboard', () => {
+    const plugBoard = reflector;
+    const rotorConfig = [new Rotor(rotor1, 1), new Rotor(rotor2, 6)];
+    const enigmini = new Enigmini(keymap, rotorConfig, reflector, plugBoard);
+    it('plugboard scrambled (direction: forward)', () => {
+      /**Input coordinates (row, column) */
+      const input = [
+        3,6, // D
+        4,4, // E
+        3,2, // Z
+        4,4  // E
+      ];
+      /**Scrambled output */
+      const output = [
+        6,3, // D
+        2,2, // E
+        6,4, // Z
+        2,2  // E
+      ];
+      // @ts-expect-error testing internal function
+      expect(input.map(coordinate => enigmini.applyPlugBoard(coordinate))).toStrictEqual(output)
+    })
+
+    it('handles partially filled plugboard', () => {
+      /**Input coordinates (row, column) */
+      const input = [
+        3,6, // D
+        4,4, // E
+        3,2, // Z
+        4,4  // E
+      ];
+      /**Scrambled output */
+      const output = [
+        6,3, // D
+        2,2, // E
+        6,4, // Z
+        2,2  // E
+      ];
+      // @ts-expect-error testing internal function
+      expect(input.map(coordinate => enigmini.applyPlugBoard(coordinate))).toStrictEqual(output)
+    })
+
+    it('plugboard scrambled (direction: reverse)', () => {
+      const partialPlugs = [
+        [1, 5],
+        [3, 6],
+        [5, 1],
+        [6, 3]
+      ];
+      
+      const rotorConfig = [new Rotor(rotor1, 1), new Rotor(rotor2, 6)];
+      const enigmini = new Enigmini(keymap, rotorConfig, reflector, partialPlugs);
+      
+      /**Input coordinates (row, column) */
+      const input = [
+        3,6, // D
+        4,4, // E
+        3,2, // Z
+        4,4  // E
+      ];
+      /**Scrambled output */
+      const output = [
+        6,3, // D
+        4,4, // E
+        6,2, // Z
+        4,4  // E
+      ];
+      // @ts-expect-error testing internal function
+      expect(input.map(coordinate => enigmini.applyPlugBoard(coordinate))).toStrictEqual(output)
     })
   })
 });
+
