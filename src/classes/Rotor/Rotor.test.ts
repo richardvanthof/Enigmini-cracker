@@ -42,6 +42,7 @@ describe("Rotor", ()=> {
 
         it('Creates list of operations', () => {
             const rotor = new Rotor(testPairs);
+            // @ts-expect-error testing internal function
             expect(rotor.operations).toStrictEqual([1,3,1,2,2,3])
         });
 
@@ -56,7 +57,8 @@ describe("Rotor", ()=> {
             const rotor = new Rotor(testPairs);
             for(let cycle = 0; cycle <= 3; cycle++) {
                 for(let pos = 1; pos <= testPairs.length; pos++) {
-                    expect(rotor.position).toBe(pos)
+                    expect(rotor.position).toBe(pos);
+                    // @ts-expect-error testing internal function
                     rotor.rotate();
                 }
             }

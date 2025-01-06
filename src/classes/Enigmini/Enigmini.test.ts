@@ -11,7 +11,7 @@ const keymap = [
     ["I", "G", "L", ["3", "."], "H", "T"],
     [["5", '"'], "Z", "R", "A", ["8", ","], "D"],
     ["P", ["6", ":"], "W", "E", ["2", "?"], "J"],
-    ["F", "K", "U", ["0", "#"], "Y", "Q"],
+    ["F", "K", "U", ["0", " "], "Y", "Q"],
     [["9", ";"], ["7", "_"], "B", ["4", "’"], "M", "V"]
 ];
 
@@ -56,12 +56,14 @@ describe("Enigmini", () => {
     const rotorConfig = [new Rotor(rotor1, 1), new Rotor(rotor2, 6)];
     it("handles single char", () => {
       const enigmini:Enigmini = new Enigmini(keymap, rotorConfig, reflector);
+      // @ts-expect-error testing internal function
       const charPos:Pos = enigmini.findCharacterPosition("K")
       expect(charPos).toEqual({ row: 5, col: 2 });
     });
 
     it("ignores letter casing", () => {
       const enigmini:Enigmini = new Enigmini(keymap, rotorConfig, reflector);
+      // @ts-expect-error testing internal function
       const charPos:Pos = enigmini.findCharacterPosition("k") // ignores case.
       expect(charPos).toEqual({ row: 5, col: 2 });
     });
@@ -69,6 +71,7 @@ describe("Enigmini", () => {
     it("throws error for unknown character", () => {
       const target = '@';
       const enigmini:Enigmini = new Enigmini(keymap, rotorConfig, reflector);
+      // @ts-expect-error testing internal function
       expect(()=>enigmini.findCharacterPosition(target))
       .toThrow(`Character '${target}' not found in keymap.`);
     });
@@ -87,6 +90,7 @@ describe("Enigmini", () => {
       const enigmini = new Enigmini(keymap, rotorConfig, reflector);
 
       const allPos = string.split("").map((char:string) => {
+        // @ts-expect-error testing internal function
         return enigmini.findCharacterPosition(char)
       })
       
@@ -95,6 +99,7 @@ describe("Enigmini", () => {
 
     it("handles fetching special characters", () => {
       const enigmini = new Enigmini(keymap, rotorConfig, reflector);
+      // @ts-expect-error testing internal function
       expect(enigmini.findCharacterPosition(";")).toEqual({
         row: 6,
         col: 1,
@@ -107,13 +112,17 @@ describe("Enigmini", () => {
     const rotorConfig = [new Rotor(rotor1, 1), new Rotor(rotor2, 6)];
     it("translate pos to char", () => {
       const enigmini = new Enigmini(keymap, rotorConfig, reflector);
+      // @ts-expect-error testing internal function
       expect(enigmini.positionToChar({ row: 6, col: 6 })).toBe("V"); // fetch char
+      // @ts-expect-error testing internal function
       expect(enigmini.positionToChar({ row: 6, col: 1, subIndex: 1 })).toBe(";"); // fetch special char.
     });
 
     it("replace missing secondary with primary character.", () => {
       const enigmini = new Enigmini(keymap, rotorConfig, reflector);
+      // @ts-expect-error testing internal functio
       expect(enigmini.positionToChar({ row: 2, col: 2, subIndex: 1 })).toBe("G");
+      // @ts-expect-error testing internal functio
       expect(enigmini.positionToChar({ row: 2, col: 2, subIndex: 0 })).toBe("G");
     });
 
@@ -129,12 +138,14 @@ describe("Enigmini", () => {
     const rotorConfig = [new Rotor(rotor1, 1), new Rotor(rotor2, 6)];
     it("remaps value (forwards)", () => {
       const enigmini = new Enigmini(keymap, rotorConfig, reflector);
+      // @ts-expect-error testing internal function
       const result = enigmini.remapValue(1, reflector);
       expect(result).toBe(5);
     });
 
     it("remaps value (backwards)", () => {
       const enigmini = new Enigmini(keymap, rotorConfig, reflector);
+      // @ts-expect-error testing internal function
       const result = enigmini.remapValue(1, reflector, true);
       expect(result).toBe(5);
     });
@@ -142,6 +153,7 @@ describe("Enigmini", () => {
     it("throws error for unknown character", () => {
       const target = 999;
       const enigmini:Enigmini = new Enigmini(keymap, rotorConfig, reflector);
+      // @ts-expect-error testing internal function
       expect(()=>enigmini.remapValue(target, reflector))
       .toThrow(`Value ${target} not found in map!`);
     });
@@ -151,6 +163,7 @@ describe("Enigmini", () => {
       const enigmini:Enigmini = new Enigmini(keymap, rotorConfig, reflector);
 
       // remap config is undefined
+      // @ts-expect-error testing internal functio
       expect(()=>enigmini.remapValue(target, null as any))
       .toThrow('Remap config not found!');
     });
@@ -159,6 +172,7 @@ describe("Enigmini", () => {
       const enigmini:Enigmini = new Enigmini(keymap, rotorConfig, reflector);
 
       // input value is undefined
+      // @ts-expect-error testing internal functio
       expect(()=>enigmini.remapValue(null as any, reflector)) 
       .toThrow('Input value not found!');
     });
@@ -171,6 +185,7 @@ describe("Enigmini", () => {
 
     it("checks for valid input", () => {
       const error = 'No valid input value provided!';
+      // @ts-expect-error testing internal functio
       expect(()=> enigmini.encypherDigit(null as any)).toThrow(error);
       // @ts-expect-error - Testing for invalid input
       expect(()=> enigmini.encypherDigit('1')).toThrow(error);
@@ -179,13 +194,15 @@ describe("Enigmini", () => {
     it("encrypt row digit", () => {
       // From the example text we know that D should be encrypted to K.
       // The character D is located at row 4, K at row 2
+      // @ts-expect-error testing internal functio
       expect(enigmini.encypherDigit(4, false)).toBe(2);
       
     });
 
     it("encrypt col digit", () => {
-      // The character D is located at col 6, K at col 2
+      // @ts-expect-error testing internal function
       expect(enigmini.encypherDigit(6)).toBe(2);
+      // The character D is located at col 6, K at col 2
     });
 
   });
@@ -194,17 +211,46 @@ describe("Enigmini", () => {
     it("encrypt/decrypt single character", async () => {
       const rotorConfig = [new Rotor(rotor1, 1), new Rotor(rotor2, 6)];
       const enigmini = new Enigmini(keymap, rotorConfig, reflector);
-
-      const plain = 'D';
-      const cypher = 'K';
-      expect(await enigmini.encrypt(plain)).toBe(cypher); // Encrypt
+      expect(await enigmini.encrypt('D')).toBe('K'); // Encrypt
     });
 
     it("encrypt/decrypt scentence", async () => {
       const rotorConfig = [new Rotor(rotor1, 1), new Rotor(rotor2, 6)];
       const enigmini = new Enigmini(keymap, rotorConfig, reflector);
 
-      expect(await enigmini.decrypt(crypt, plain)).toBe(plain); // Encrypt
+      expect(await enigmini.decrypt(crypt)).toBe(plain); // Encrypt
     });                                              
+  })
+
+  describe('Delimits input', ()=> {
+    const rotorConfig = [new Rotor(rotor1, 1), new Rotor(rotor2, 6)];
+    const enigmini = new Enigmini(keymap, rotorConfig, reflector);
+
+    it('creates special characters map', ()=> {
+      const target = [
+        ["0", ' '],
+        ["1", '!'],
+        ["2", '?'],
+        ["3", '.'],
+        ["4", "’"],
+        ["5", '"'],
+        ["6", ':'],
+        ["7", '_'],
+        ["8", ','],
+        ["9", ';']
+      ];
+      // @ts-expect-error - testing internal function
+      expect(enigmini.getSpecialCharsMap()).toStrictEqual(target)
+    });
+
+    it('delimits cypher (decryption)', ()=> {
+      // @ts-expect-error testing internal function
+      expect(enigmini.delimit('1234567890', 'REVERSE')).toBe(`!?.’":_,; `);
+    });
+
+    it('delimits plain (encryption)', ()=> {
+      // @ts-expect-error testing internal function
+      expect(enigmini.delimit(`!?.’":_,; `, 'DEFAULT')).toBe('1234567890');
+    })
   })
 });

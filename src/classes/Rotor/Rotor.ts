@@ -23,7 +23,7 @@ class Rotor {
     position: number;
     readonly thresh: number;
     mappings: number[][][];
-    operations: number[];
+    private operations: number[];
 
     constructor(
         _operations:number[], 
@@ -40,7 +40,7 @@ class Rotor {
     }
 
     /**Generate a list of mappings for each rotor position based on the initial operations list. */
-    generateMappings():number[][][] {
+    private generateMappings():number[][][] {
         return this.operations.map(() => {
             
             /**Generate the list of value pairs. */
@@ -60,7 +60,7 @@ class Rotor {
     }
     
     /**Normalize mutated value to 1-6 range and wrap around if needed.*/
-    normalize(value: number):number {
+    private normalize(value: number):number {
         const min = 1;
         const max = this.operations.length;
         const range = max - min + 1;
@@ -69,7 +69,7 @@ class Rotor {
     };
 
     /**Rotate the rotor one step */
-    rotate():void {
+    private rotate():void {
         if(this.position === this.mappings.length) {
             this.position = 1;
         } else {

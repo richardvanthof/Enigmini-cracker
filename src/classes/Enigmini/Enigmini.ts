@@ -1,5 +1,6 @@
 import type Rotor from "../Rotor/Rotor";
 import { logToCSV } from "../../lib/Logger";
+import { delimiter } from "path";
 /**
  * Specifies coordinate for character in keymap
  */
@@ -25,10 +26,10 @@ export interface Pos {
  */
 class Enigmini {
     // Types
-    readonly keyMap: (string | string[])[][];
-    readonly plugBoard?: number[][];
-    readonly reflector?: number[][]
-    readonly rotors: Rotor[];
+    private readonly keyMap: (string | string[])[][];
+    private readonly plugBoard?: number[][];
+    private readonly reflector?: number[][]
+    private readonly rotors: Rotor[];
     private readonly specialCharsMap: string[][];
     private log: Map<string, any>[];
 
@@ -55,7 +56,7 @@ class Enigmini {
        * Search for single (special) character or number in the keymap 
        * and returns it's column and row number.
        * */
-      findCharacterPosition(char: string):Pos {   
+      private findCharacterPosition(char: string):Pos {   
         const keyMap = this.keyMap;
         let normalizedPos;
         let normalizedChar = char.toUpperCase();
@@ -101,7 +102,7 @@ class Enigmini {
       }
       
       /**Translates position to character from keymap */
-      positionToChar(pos: Pos): string {
+      private positionToChar(pos: Pos): string {
           // Input validation
           if (!pos || typeof pos.row !== 'number' || typeof pos.col !== 'number') {
               throw new Error('Invalid position provided');
@@ -134,7 +135,7 @@ class Enigmini {
       }
       
       /**Remap one value to a prespecified other value */
-      remapValue(value: number|string, map: (number|string)[][], reverse: boolean = false):number|string {
+      private remapValue(value: number|string, map: (number|string)[][], reverse: boolean = false):number|string {
         // Input validation
         if (!map) { throw new Error('Remap config not found!') }
         if (value === undefined || value === null) { throw new Error('Input value not found!') }
@@ -146,7 +147,7 @@ class Enigmini {
 
     
       /** If applies additional substitution cypher when plugboard is configured.*/
-      applyPlugBoard = (value:number):number => {
+      private applyPlugBoard = (value:number):number => {
         if(this.plugBoard && this.plugBoard.some((element) => {
           // check if value is on index 0 of plugboard items
           return element[0] === value 
@@ -171,7 +172,7 @@ class Enigmini {
       }
       
       /**Encrypt/decrypt single digit (often character position coordinate). */
-      encypherDigit = (number:number, debug:string|false = false):number => {
+      private encypherDigit = (number:number, debug:string|false = false):number => {
         this.log.push(new Map());
         const log = this.log[this.log.length - 1];
 
@@ -229,19 +230,18 @@ class Enigmini {
       };
       
       /**Encrypt/decrypt string */
-      async encypher(plain: string, debug: string|false = false) {
+      private async encypher(plain: string, debug: string|false = false) {
         let allLogs:Map<string,unknown>[] = [];
         /**Normalize string to UPPERCASE*/
         let normalizedPlain = plain.toUpperCase().split('');
         let result:string[] = [];
-        const delimiter = '#';
+        // const delimiter = '#';
 
         // Loop through each character of string
-
         normalizedPlain.forEach((_char, index) => {	
           
           // replace spaces with #-character
-          const char = _char.replace(' ', delimiter);
+          const char = _char;
           
           /** Find the position (ROW, COLUMN, SUBSTRING?] 
            * of the character in the key map */
@@ -293,29 +293,41 @@ class Enigmini {
 
       private getSpecialCharsMap():string[][] {
         let pairs:string[][] = [];
+
+        // get special characters and its delimiter from the keymap;
         this.keyMap.forEach(row => { 
           row.forEach(cell => {
             if(Array.isArray(cell)) { pairs.push(cell)}
           })
         })
-        return pairs;
+        // sort pairs by the delimiter (which is a number) and return result.
+        return pairs.sort(([a],[b]) => parseInt(a) - parseInt(b));
+      }
+
+      private delimit(text: string, direction: 'DEFAULT'|'REVERSE' = 'DEFAULT'):string {
+        let delimited = text;
+        /**
+         * DEFAULT: replace char with delimiter
+         * REVERSE: replace delimiter with char
+         */
+        this.specialCharsMap.forEach(([delimiter, char]) => {
+          const searchVal = direction === 'DEFAULT' ? char : delimiter;
+          const replacement = direction === 'DEFAULT' ? delimiter : char;
+          delimited = delimited.replaceAll(searchVal, replacement)
+        });
+
+        return delimited;
       }
 
       async encrypt(plain: string, debug: string|false = false) {
-        let normalized = plain
-        this.specialCharsMap.forEach(([delimiter, char]) => {
-          normalized.replaceAll(char, delimiter)
-        });
+        let normalized = this.delimit(plain)
         
         return await this.encypher(normalized, debug)
       };
 
       async decrypt(cypher: string, debug: string|false = false) {
         let plain = await this.encypher(cypher, debug);
-        this.specialCharsMap.forEach(([delimiter, char]) => {
-          plain.replaceAll(delimiter, char)
-        });
-        return plain
+        return this.delimit(plain, 'REVERSE')
       };
 }
 
