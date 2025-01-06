@@ -279,17 +279,12 @@ class Enigmini {
       }
 
       encrypt(plain: string, debug: string|false = false) {
-        const delimitedPlain = plain
-        .replaceAll(' ', '#')
-        .replaceAll('!', '1');
 
-        return this.encypher(delimitedPlain, debug);
+        return this.encypher(plain, debug);
       };
 
       decrypt(cypher: string, debug: string|false = false) {
-        return this.encypher(cypher, debug)
-        .replaceAll('0', ' ')
-        .replaceAll('1', '!');
+        return this.encypher(cypher, debug);
       };
 }
 
