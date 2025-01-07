@@ -172,12 +172,9 @@ class Enigmini {
     
       /** If applies additional substitution cypher when plugboard is configured.*/
       private applyPlugBoard = (value:number):number => {
-        if(this.plugBoard && this.plugBoard.some((element) => {
-          // check if value is on index 0 of plugboard items
-          return element[0] === value 
-        })) {
+        if(this.plugBoard && this.plugBoard.flat().some((elem) => elem === value )) {
           // if value is in a plugboard, remap it.
-          const result = this.remapValue(value, this.plugBoard);
+          const result = this.remapValue(value, this.plugBoard, 'SYMMETRIC');
           // log({plugboard: result})
           if(typeof result === 'number') {
             return result;
@@ -212,8 +209,9 @@ class Enigmini {
         // encryption pipeline
         
         // 1. apply plugboard
-        result = this.applyPlugBoard(result);  // apply plugboard
-        (debug && this.plugBoard) && log.set('> Plugboard', result);
+        // result = this.applyPlugBoard(result);  // apply plugboard
+        // (debug && this.plugBoard) && log.set('> Plugboard', result);
+        
         // 2. Rotors forward
         this.getRotorsInOrder().forEach((rotor, index) => {
           result = rotor.getValue(result, 'FORWARD');
@@ -240,7 +238,8 @@ class Enigmini {
         });
         
         // 5. apply plugboard*
-        // result = this.applyPlugBoard(result);
+        result = this.applyPlugBoard(result);
+        (debug && this.plugBoard) && log.set('> Plugboard', result);
         
         // *AIVD: Bij opgave 14 zijn we vergeten te vermelden dat de leider van 
         // het ontcijferingsteam van Piconesië ontdekte dat het stekkerbord 
