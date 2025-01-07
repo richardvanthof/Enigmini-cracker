@@ -211,6 +211,10 @@ class Enigmini {
         // 1. apply plugboard
         // result = this.applyPlugBoard(result);  // apply plugboard
         // (debug && this.plugBoard) && log.set('> Plugboard', result);
+        // *AIVD: Bij opgave 14 zijn we vergeten te vermelden dat de leider van 
+        // het ontcijferingsteam van Piconesië ontdekte dat het stekkerbord 
+        // verkeerd is geïmplementeerd en maar in één richting werkt. 
+        // In de andere richting wordt het stekkerbord overgeslagen.
         
         // 2. Rotors forward
         this.getRotorsInOrder().forEach((rotor, index) => {
@@ -240,11 +244,7 @@ class Enigmini {
         // 5. apply plugboard*
         result = this.applyPlugBoard(result);
         (debug && this.plugBoard) && log.set('> Plugboard', result);
-        
-        // *AIVD: Bij opgave 14 zijn we vergeten te vermelden dat de leider van 
-        // het ontcijferingsteam van Piconesië ontdekte dat het stekkerbord 
-        // verkeerd is geïmplementeerd en maar in één richting werkt. 
-        // In de andere richting wordt het stekkerbord overgeslagen.
+      
         
         // Update rotor counters
         this.rotors.forEach((rotor:Rotor) => rotor.update());

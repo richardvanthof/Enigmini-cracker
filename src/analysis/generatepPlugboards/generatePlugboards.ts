@@ -37,7 +37,6 @@ async function generatePlugCombinations(numbers: number[]): number[][][] {
   
     // Generate all valid combinations of pairs (from 0 pairs to 3 pairs)
     getCombinations(pairs);
-    console.log(results);
     return results;
 }
 
