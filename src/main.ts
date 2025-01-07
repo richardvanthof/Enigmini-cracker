@@ -3,7 +3,6 @@ import Rotor from './classes/Rotor/Rotor';
 import generatePlugCombinations from './analysis/generatepPlugboards/generatePlugboards.js';
 import {logToCSV, markDiffs} from './lib/Logger';
 
-
 const keymap = [
   ["O", "N", ["1", "!"], "C", "S", "X"],
   ["I", "G", "L", ["3", "."], "H", "T"],
@@ -27,22 +26,41 @@ const operations = {
   rotor2: [2, -1, 2, 2, 3, -2]
 }
 
-// Reference string
-const plain = "DEZE VOORBEELDTEKST IS VERCIJFERD MET DE ENIGMINI!";
-const cypher = "KRY8D1D37CRLE9NS906LJ4D1KVT2ZDL4KHU86LF8D5AC1OYMJE";
+console.log('Initiating...')
 
-const rotorConfig = [new Rotor(operations.rotor1, 1), new Rotor(operations.rotor2, 6)];
+const assignment0 = async () => {
+  // Reference string
+  const plain = "DEZE VOORBEELDTEKST IS VERCIJFERD MET DE ENIGMINI!";
+  const cypher = "KRY8D1D37CRLE9NS906LJ4D1KVT2ZDL4KHU86LF8D5AC1OYMJE";
 
-const rotorA = new Rotor(operations.rotor1, 1);
-const rotorB = new Rotor(operations.rotor2, 6);
+  const rotorConfig = [new Rotor(operations.rotor1, 1), new Rotor(operations.rotor2, 6)];
 
-const enigmini = new Enigmini(keymap, rotorConfig, reflector);
-const enigmini2 = new Enigmini(keymap, [rotorA, rotorB], reflector);
+  const rotorA = new Rotor(operations.rotor1, 1);
+  const rotorB = new Rotor(operations.rotor2, 6);
 
-const encryption = markDiffs(await enigmini.encrypt(plain), cypher);
-const decrpytion = markDiffs(await enigmini2.decrypt(cypher), plain);
+  const enigmini = new Enigmini(keymap, rotorConfig, reflector);
+  const enigmini2 = new Enigmini(keymap, [rotorA, rotorB], reflector);
 
-console.log('INITIATING ENIGMINI CRACKER...')
+  const encryption = markDiffs(await enigmini.encrypt(plain), cypher);
+  const decrpytion = markDiffs(await enigmini2.decrypt(cypher), plain);
+
+  console.log(`
+    # Enigmini results
+    0. prove that encryption algorithm works
+    
+    Encrypt:
+    REF: ${encryption.ref} 
+    RES: ${encryption.diff}
+    Differences: ${encryption.count} (${encryption.count/cypher.length*100}%)
+    
+    Decrypt:
+    REF: ${decrpytion.ref}
+    RES: ${decrpytion.diff}
+    Differences: ${decrpytion.count} (${decrpytion.count/plain.length*100}%)
+    `);
+};
+
+await assignment0();
 
 const assignment1 = async () => {
   try {
@@ -50,39 +68,29 @@ const assignment1 = async () => {
   const input = 'UCXOMDTVHMAXJCO6PKSJJ5P4Y18EMYUO2KOGDM31QXT31SEV8JH116.';
   const plugboards = await generatePlugCombinations([1,2,3,4,5,6])
   const results:Map<string, unknown>[] = [];
-  for (const [index, plugs] of plugboards.entries()) {
-    console.log(`Trying plug config ${index+1} of ${plugboards.length}`)
+  for (const plugs of plugboards) {
+    const rotorConfig = [new Rotor(operations.rotor1, 1), new Rotor(operations.rotor2, 6)];
     const enigmini = new Enigmini(keymap, rotorConfig, reflector, plugs);
     const res = await enigmini.decrypt(input);
     results.push(new Map([
-      ['plain', res]
+      ['plain', res],
+      ['config', JSON.stringify(plugs)]
+      // ['bigram', analysis.bigram],
+      // ['trigram', analysis.trigram],
+      // ['quadgram', analysis.quadgram]
     ]));
   }
-  logToCSV(results, `results/assignment1/assignment1-${new Date().getTime()}.csv`)
-  return '> Results saved in "results/assignment1"'  
+  const file = `results/assignment1/assignment1-${new Date().getTime()}.csv`;
+  await logToCSV(results, file);
+  return `> Results saved to ${file}` 
 } catch(err) {
     console.error(err)
   }
 }
 
-
-console.log(`
-# Enigmini results
-0. prove that encryption algorithm works
-
-Encrypt:
-REF: ${encryption.ref} 
-RES: ${encryption.diff}
-Differences: ${encryption.count} (${encryption.count/cypher.length*100}%)
-
-Decrypt:
-REF: ${decrpytion.ref}
-RES: ${decrpytion.diff}
-Differences: ${decrpytion.count} (${decrpytion.count/plain.length*100}%)
-
-1. Gegeven is dezelfde beginconfiguratie als in het voorbeeld, maar met een ander stekkerbord.
-Geef de titel voor 'UCXOMDTVHMAXJCO6PKSJJ5P4Y18EMYUO2KOGDM31QXT31SEV8JH116.'
-${await assignment1()}
-`);
-
-
+console.log(await assignment1());
+console.log({
+  map: [[1,4],[2,3],[5,6]],
+  result: 'IK KEN GEEN ANDERE LANDEN, ZELFS AL BEN IK ER GEWEEST.N',
+  answer: 'Liefs uit London'
+})
