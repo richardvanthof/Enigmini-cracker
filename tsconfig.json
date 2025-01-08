@@ -21,7 +21,7 @@
     "noUncheckedSideEffectImports": true,
     "sourceMap": true,
     "removeComments": true,
-    "moduleResolution": "nodenext"
+    "moduleResolution": "node"
   },
   "include": ["src"]
 }

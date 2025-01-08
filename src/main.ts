@@ -2,7 +2,7 @@ import Enigmini from './classes/Enigmini/Enigmini';
 import Rotor from './classes/Rotor/Rotor';
 import generatePlugCombinations from './analysis/generatepPlugboards/generatePlugboards.js';
 import {logToCSV, markDiffs} from './lib/Logger';
-import calculateIOC from './analysis/calculateIOC/calculateIOC.js';
+import calculateIOC, {countFrequencies} from './analysis/calculateIOC/calculateIOC.js';
 
 const keymap = [
   ["O", "N", ["1", "!"], "C", "S", "X"],
@@ -72,6 +72,7 @@ const assignment1 = async () => {
     const rotorConfig = [new Rotor(operations.rotor1, 1), new Rotor(operations.rotor2, 6)];
     const enigmini = new Enigmini(keymap, rotorConfig, reflector, plugs);
     const res = await enigmini.decrypt(input);
+    
     results.push(new Map([
       ['plain', res],
       ['IoC', calculateIOC(res)],
