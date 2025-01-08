@@ -8,10 +8,17 @@ describe('input validation', () => {
 });
 
 describe('combination generation', () => {
-    it('generates combinations', async () => {
+    it('generates plugboard combinations', async () => {
         const options = [1, 2, 3, 4, 5, 6];
         const result = await generatePlugboardCombinations(options);
         // TODO: find out what the total for all plugboard combinations should be.
         expect(result).toHaveLength(76);
     });
+
+    it('generates reflector combinations', async () => {
+        const options = [1, 2, 3, 4, 5, 6];
+        const result = await generatePlugboardCombinations(options, true);
+        // TODO: find out what the total for all plugboard combinations should be.
+        expect(result).toHaveLength(15);
+    })
 });
