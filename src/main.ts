@@ -4,29 +4,7 @@ import generatePlugCombinations from './analysis/generatepPlugboards/generatePlu
 import {logToCSV, markDiffs} from './lib/Logger';
 import calculateIOC, {countFrequencies} from './analysis/calculateIOC/calculateIOC.js';
 import { scoreString } from './analysis/generateNGrams/generateNGrams';
-
-const keymap = [
-  ["O", "N", ["1", "!"], "C", "S", "X"],
-  ["I", "G", "L", ["3", "."], "H", "T"],
-  [["5", '"'], "Z", "R", "A", ["8", ","], "D"],
-  ["P", ["6", ":"], "W", "E", ["2", "?"], "J"],
-  ["F", "K", "U", ["0", " "], "Y", "Q"],
-  [["9", ";"], ["7", "_"], "B", ["4", "’"], "M", "V"]
-];
-
-const reflector = [
-[1, 5],
-[2, 4],
-[3, 6],
-[4, 2],
-[5, 1],
-[6, 3]
-];
-
-const operations = {
-  rotor1: [1, 3, 1, 2, 2, 3],
-  rotor2: [2, -1, 2, 2, 3, -2]
-}
+import { keymap, reflector, operations } from './config';
 
 console.log('Initiating...')
 
@@ -118,15 +96,15 @@ const assignment2 = async () => {
   const enigmini = new Enigmini(keymap, rotorConfig, defaultConfig.reflector, plugboard);
 
   /**
-   * # Possible combinations   
-   * reflector
-   * (6!)/(2^3*3!) = 15 combinations
-   * 
    * all rotor combinations:
    * 6!*(6!-1) = 517.680 permutations
    * 
    * reflector + all rotors
    * 517.680 * 15 = 7.765200 permutations
+   *
+   * # Possible combinations   
+   * reflector
+   * (6!)/(2^3*3!) = 15 combinations
    * 
    * rotor1
    * 6! = 720 permutations
@@ -149,6 +127,9 @@ const assignment2 = async () => {
    * 4. check which outputs look the most like Dutch
    * 5. generate all versions of all reflectors
    */
+
+  const plugboards = await generatePlugCombinations([1,2,3,4,5,6], true);
+  console.log(plugboards);
   return {
     result: await enigmini.decrypt(input)
   }
