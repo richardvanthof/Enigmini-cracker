@@ -33,7 +33,7 @@ const scoreNGrams = (ngramsList: string[]): Map<string, number> => {
 
     // Update values
     for (const [key, value] of occurences.entries()) {
-        const logProbability = Math.log(value / ngramsList.length);
+        const logProbability = Math.log(Math.floor(value) / ngramsList.length);
         occurences.set(key, logProbability);
     }
 
@@ -43,21 +43,47 @@ const scoreNGrams = (ngramsList: string[]): Map<string, number> => {
     return sortedOccurences;
 };
 
-const generateNGrams = async (sourceDataPath: string):Promise<object> => {
-    let text = await readTextFromFile(sourceDataPath)
-    const normalized = await normalize(text);
-    console.log('Generating nGrams. One moment please...')
-
-    const ngrams = {
-        biGram: bigram(normalized),
-        driGram: trigram(normalized),
-        quadGram: nGram(4)(normalized)
-    }
-
-    return ngrams
+interface NGrams {
+    bi: Map<string,number>,
+    tri: Map<string,number>,
+    quad: Map<string,number>,
 }
 
-const nGrams = generateNGrams('src/data/corpus.txt');
+const generateNGrams = async (sourceDataPath: string):Promise<NGrams> => {
+    let text = await readTextFromFile(sourceDataPath)
+    const normalized = await normalize(text);
+    
+    const ngrams = {
+        bi: bigram(normalized),
+        tri: trigram(normalized),
+        quad: nGram(4)(normalized)
+    }
 
-export {readTextFromFile, normalize, generateNGrams, scoreNGrams};
-export default nGrams
+    return {
+        bi: scoreNGrams(ngrams.bi),
+        tri: scoreNGrams(ngrams.tri),
+        quad: scoreNGrams(ngrams.quad)
+    }
+}
+
+let nGrams:NGrams;
+
+const scoreString = async (text: string, type: 'bi' | 'tri' | 'quad'): Promise<number> => {
+    if (!nGrams) {
+        nGrams = await generateNGrams('src/data/corpus.txt');
+    }
+    const nGramList = nGrams[type];
+    const normalized = await normalize(text);
+    
+    const inputNGram = type === 'bi' ? bigram(normalized) : type === 'tri' ? trigram(normalized) : nGram(4)(normalized);
+    
+    let score = 0;
+    for (const nGram of inputNGram) {
+        score += nGramList.get(nGram) || 0;
+    }
+
+    return score;
+};
+
+export {readTextFromFile, normalize, generateNGrams, scoreNGrams, scoreString};
+

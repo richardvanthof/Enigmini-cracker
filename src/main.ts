@@ -3,6 +3,7 @@ import Rotor from './classes/Rotor/Rotor';
 import generatePlugCombinations from './analysis/generatepPlugboards/generatePlugboards.js';
 import {logToCSV, markDiffs} from './lib/Logger';
 import calculateIOC, {countFrequencies} from './analysis/calculateIOC/calculateIOC.js';
+import { scoreString } from './analysis/generateNGrams/generateNGrams';
 
 const keymap = [
   ["O", "N", ["1", "!"], "C", "S", "X"],
@@ -68,18 +69,24 @@ const assignment1 = async () => {
   const input = 'UCXOMDTVHMAXJCO6PKSJJ5P4Y18EMYUO2KOGDM31QXT31SEV8JH116.';
   const plugboards = await generatePlugCombinations([1,2,3,4,5,6])
   const results:Map<string, unknown>[] = [];
+  console.info('Generating nGram models. One moment please...')
   for (const plugs of plugboards) {
     const rotorConfig = [new Rotor(operations.rotor1, 1), new Rotor(operations.rotor2, 6)];
     const enigmini = new Enigmini(keymap, rotorConfig, reflector, plugs);
     const res = await enigmini.decrypt(input);
     
+
+    const quad = await scoreString(res, 'quad');
+    const tri = await scoreString(res, 'tri');
+    const bi = await scoreString(res, 'bi');
+
     results.push(new Map([
       ['plain', res],
       ['IoC', calculateIOC(res)],
+      ['quadgram', quad],
+      ['trigram', tri],
+      ['bigram', bi],
       ['config', JSON.stringify(plugs)]
-      // ['bigram', analysis.bigram],
-      // ['trigram', analysis.trigram],
-      // ['quadgram', analysis.quadgram]
     ]));
   }
   const file = `results/assignment1/assignment1-${new Date().getTime()}.csv`;

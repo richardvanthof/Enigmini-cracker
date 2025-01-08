@@ -1,5 +1,5 @@
-import {readTextFromFile, normalize, scoreNGrams} from './generateNGrams';
-import {it, expect } from 'vitest';
+import {readTextFromFile, normalize, scoreNGrams, scoreString} from './generateNGrams';
+import {it, expect, describe } from 'vitest';
 import { bigram } from 'n-gram';
 
 it('imports corpus text', async () => {
@@ -17,9 +17,54 @@ it('normalizes corpus test', async ()=> {
 });
 
 it('score nGrams', async () => {
-    const text = "$8MRDECHTKAPITAALALSVERLIEZENOPOBLIGATIESTELLEN. €1,25 EXTRA ALS ZE OOK EEN TOETJE EN EEN FLESJE WATER WILLEN. € 1 VOOR EEN POSTZEGEL MET DIE KOP VAN WILLEM A. EROP EN DAN PAS NA EEN WEEK TE HOREN KRIJGEN DAT JE KAARTJE BEZORGD IS";
+    const text = "MRDECHTKAPITAALALSVERLIEZENOPOBLIGATIESTELLENEXTRAALSZEOOKEENTOETJEENEENFLESJEWATERWILLENVOOREENPOSTZEGELMETDIEKOPVANWILLEMAEROPENDANPASNAEENWEEKTEHORENKRIJGENDATJEKAARTJEBEZORGDIS";
     const biGram = bigram(text);
     const nGrams = await scoreNGrams(biGram);
     expect(nGrams).toBeDefined();
 });
+
+describe('scores nGrams correctly', () => { 
+    const dutch = "Hallo wereld, ik ben een zin die jij moet scoren.";
+    const middle = "I_’_EN’GEEN’AN,ERE’LAN,END’ZEL;X’AL’UEN’I_’ER’GEWEEXH.N"
+    const random = 'DW:WGB:RGGB:NBSGOG:"NBSGBC:!G"J’:N":FGB:DW:GO:RGIGG’,ZB';
+    it('scores bigrams correctly', async () => {
+
+        
+        const type = 'bi'
+        const score1 = await scoreString(dutch, type);
+        const score2 = await scoreString(middle, type);
+        const score3 = await scoreString(random, type);
+    
+        console.log({score1, score2, score3})
+        const order = score1 > score2 && score2 > score3;
+        expect(order).toBe(true);
+    });
+    
+    it('scores trigram correctly', async () => {
+        
+        const type = 'tri'
+        const score1 = await scoreString(dutch, type);
+        const score2 = await scoreString(middle, type);
+        const score3 = await scoreString(random, type);
+    
+        console.log({score1, score2, score3})
+        const order = score1 > score2 && score2 > score3;
+        expect(order).toBe(true);
+    });
+    
+    it('score quadgrams correctly', async () => {
+        
+        const type = 'quad'
+        const score1 = await scoreString(dutch, type);
+        const score2 = await scoreString(middle, type);
+        const score3 = await scoreString(random, type);
+    
+        console.log({score1, score2, score3})
+        const order = score1 > score2 && score2 > score3;
+        expect(order).toBe(true);
+    });
+})
+
+
+
 
