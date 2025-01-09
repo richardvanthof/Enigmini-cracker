@@ -1,7 +1,7 @@
 import Enigmini from './classes/Enigmini/Enigmini';
 import Rotor from './classes/Rotor/Rotor';
 import generatePlugCombinations from './analysis/generatepPlugboards/generatePlugboards.js';
-import {logToCSV, markDiffs} from './lib/Logger';
+import { logToCSV, markDiffs} from './lib/Logger';
 import { keymap, reflector, operations } from './config';
 import score from './analysis/fitness/scoreFitness/scoreFirness';
 
@@ -46,7 +46,6 @@ const assignment1 = async () => {
   const input = 'UCXOMDTVHMAXJCO6PKSJJ5P4Y18EMYUO2KOGDM31QXT31SEV8JH116.';
   const plugboards = await generatePlugCombinations([1,2,3,4,5,6])
   const results:Map<string, unknown>[] = [];
-  console.info('Generating nGram models. One moment please...')
   for (const plugs of plugboards) {
     const rotorConfig = [new Rotor(operations.rotor1, 1), new Rotor(operations.rotor2, 6)];
     const enigmini = new Enigmini(keymap, rotorConfig, reflector, plugs);
@@ -63,6 +62,7 @@ const assignment1 = async () => {
     ]));
   }
   const file = `results/assignment1/assignment1-${new Date().getTime()}.csv`;
+  results.sort((a, b) => (b.get('score') as number) - (a.get('score') as number));
   await logToCSV(results, file);
   return {
     map: JSON.stringify([[1,4],[2,3],[5,6]]),
@@ -133,7 +133,6 @@ const assignment2 = async () => {
    * 5. generate all versions of all reflectors
    */
 
-  console.log(plugboards);
   return {
     result: await enigmini.decrypt(input)
   }
