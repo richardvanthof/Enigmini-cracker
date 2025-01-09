@@ -2,7 +2,7 @@ import Enigmini from './classes/Enigmini/Enigmini';
 import Rotor from './classes/Rotor/Rotor';
 import generatePlugCombinations from './analysis/generatepPlugboards/generatePlugboards.js';
 import {logToCSV, markDiffs} from './lib/Logger';
-import calculateIOC, {countFrequencies} from './analysis/calculateIOC/calculateIOC.js';
+import calculateIOC, {countFrequencies} from './analysis/fitness/calculateIOC/calculateIOC';
 import { scoreString } from './analysis/generateNGrams/generateNGrams';
 import { keymap, reflector, operations } from './config';
 
@@ -86,15 +86,25 @@ const assignment2 = async () => {
   const input = '0ULW2BHR3SJALF5P2FWCYONLHPFW7YZN84UPQWNKMTYIEYTYN2QE63SJBLFV6SQE9Y27E2';
   const plugboard = [[1,4],[2,3],[5,6]];
 
-  // 
-  const defaultConfig = {
-    reflector: [[1,1], [2,2], [3,3], [4,4], [5,5], [6,6]],
-    rotor: [0,0,0,0,0,0]
-  };
 
-  const rotorConfig = [new Rotor(defaultConfig.rotor, 1), new Rotor(defaultConfig.rotor, 6)];
-  const enigmini = new Enigmini(keymap, rotorConfig, defaultConfig.reflector, plugboard);
+  //
 
+  const rotorConfig = [new Rotor(operations.rotor1, 6)];
+  const enigmini = new Enigmini(keymap, rotorConfig, reflector, plugboard);
+
+  
+  const plugboards = await generatePlugCombinations([1,2,3,4,5,6], true);
+  // const reflectorResults = plugboards.map(async (plugboard) => {
+
+  //   const rotorConfig = [new Rotor(operations.rotor1, 1), new Rotor(operations.rotor2, 6)];
+  //   const enigmini = new Enigmini(keymap, rotorConfig, reflector, plugs);
+  //   const res = await enigmini.decrypt(input);
+    
+  //   const quad = await scoreString(res, 'quad');
+
+      
+  // });
+  
   /**
    * all rotor combinations:
    * 6!*(6!-1) = 517.680 permutations
@@ -128,7 +138,6 @@ const assignment2 = async () => {
    * 5. generate all versions of all reflectors
    */
 
-  const plugboards = await generatePlugCombinations([1,2,3,4,5,6], true);
   console.log(plugboards);
   return {
     result: await enigmini.decrypt(input)
