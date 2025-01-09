@@ -1,5 +1,4 @@
 import calculateNGram from "../calculateNGram/calculateNGrams";
-import calculateIOC from "../calculateIOC/calculateIOC";
 import calculateMatchWord from "../calculateWordMatch/calculateWordMatch";
 
 const normalize = (text: string): string => {
@@ -12,17 +11,17 @@ const normalize = (text: string): string => {
  * @param text - The input text to evaluate.
  * @returns The fitness score (0 to 1).
 */
-function scoreFitness(text: string): number {
+async function scoreFitness(text: string): Promise<number> {
     const normalizedText = normalize(text);
-    const quadgram = calculateNGram(normalizedText, 'quad');
-    const biGram = calculateNGram(normalizedText, 'bi');
-    const matchWord = calculateMatchWord(normalizedText);
-
+    const quadGramScore = await calculateNGram(normalizedText, 'quad');
+    const biGramScore = await calculateNGram(normalizedText, 'bi');
+    const wordMatchScore = await calculateMatchWord(normalizedText);
+    
     // Penalize for unlikely text lengths
-    const lengthPenalty = normalizedText.length >= 10 && normalizedText.length <= 100 ? 0 : -1;
+    const lengthPenalty = normalizedText.length >= 10 ? 0 : -1;
 
     // Combine scores
-    const fitness = 0.5 * wordMatchScore + 0.3 * stopWordScore + 0.2 * bigramScore + lengthPenalty;
+    const fitness = 0.5 * wordMatchScore + 0.25 * biGramScore + 0.25 * quadGramScore + lengthPenalty;
     return Math.max(fitness, 0); // Ensure fitness is non-negative
 }
   

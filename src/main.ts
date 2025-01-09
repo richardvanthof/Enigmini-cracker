@@ -2,9 +2,8 @@ import Enigmini from './classes/Enigmini/Enigmini';
 import Rotor from './classes/Rotor/Rotor';
 import generatePlugCombinations from './analysis/generatepPlugboards/generatePlugboards.js';
 import {logToCSV, markDiffs} from './lib/Logger';
-import calculateIOC, {countFrequencies} from './analysis/fitness/calculateIOC/calculateIOC';
-import { scoreString } from './analysis/fitness/calculateNGram/calculateNGrams';
 import { keymap, reflector, operations } from './config';
+import score from './analysis/fitness/scoreFitness/scoreFirness';
 
 console.log('Initiating...')
 
@@ -54,16 +53,12 @@ const assignment1 = async () => {
     const res = await enigmini.decrypt(input);
     
 
-    const quad = await scoreString(res, 'quad');
-    const tri = await scoreString(res, 'tri');
-    const bi = await scoreString(res, 'bi');
+    const fitness = await score(res);
+
 
     results.push(new Map([
       ['plain', res],
-      ['IoC', calculateIOC(res)],
-      ['quadgram', quad],
-      ['trigram', tri],
-      ['bigram', bi],
+      ['score', fitness],
       ['config', JSON.stringify(plugs)]
     ]));
   }
