@@ -11,7 +11,7 @@ const readTextFromFile = async (filePath: string): Promise<string> => {
 };
 
 const normalize = async (text: string): Promise<string> => {
-    const normalized = text.toUpperCase()
+    const normalized = text.toLowerCase()
         .split('\n')
         .map(line => line.replace(/^\d+\t/, ''))
         .join('')
@@ -24,23 +24,19 @@ const normalize = async (text: string): Promise<string> => {
 
 /**Figure out for each nGram how likely it is to occur in the source text corpus.*/
 const scoreNGrams = (ngramsList: string[]): Map<string, number> => {
-    // Count occurences off certai letter combinations in the input string.
     const occurences = ngramsList.reduce((acc, ngram) => {
         acc.set(ngram, (acc.get(ngram) || 0) + 1);
         return acc;
     }, new Map<string, number>());
-    // Delete entries that have less than 10 occurences.
 
-    // Update values
+    const totalNGrams = ngramsList.length;
+
     for (const [key, value] of occurences.entries()) {
-        const logProbability = Math.log(Math.floor(value) / ngramsList.length);
-        occurences.set(key, logProbability);
+        const probability = value / totalNGrams;
+        occurences.set(key, probability);
     }
 
-    // Sort occurences by value
-    const sortedOccurences = new Map([...occurences.entries()].sort((a, b) => b[1] - a[1]));
-
-    return sortedOccurences;
+    return occurences;
 };
 
 interface NGrams {
@@ -73,17 +69,27 @@ const scoreString = async (text: string, type: 'bi' | 'tri' | 'quad'): Promise<n
         nGrams = await generateNGrams('src/data/corpus.txt');
     }
     const nGramList = nGrams[type];
-    const normalized = await normalize(text);
+    const normalizedText = text.toLowerCase();
     
-    const inputNGram = type === 'bi' ? bigram(normalized) : type === 'tri' ? trigram(normalized) : nGram(4)(normalized);
+    const nGramType = type === 'bi' ? 2 : type === 'tri' ? 3 : 4;
     
     let score = 0;
-    for (const nGram of inputNGram) {
-        score += nGramList.get(nGram) || 0;
+
+    for (let i = 0; i < normalizedText.length - nGramType + 1; i++) {
+        const currentNGram = normalizedText.slice(i, i + nGramType);
+        const probability = nGramList.get(currentNGram) ?? 1 / nGramList.size;
+        score += Math.log(probability);
     }
 
-    return score;
+    // Calculate min and max possible scores
+    const minScore = normalizedText.length * Math.log(1 / nGramList.size);
+    const maxScore = 0; // log(1) is 0
+
+    // Normalize the score to a value between 0 and 1
+    const normalizedScore = (score - minScore) / (maxScore - minScore);
+
+    return normalizedScore;
 };
 
 export {readTextFromFile, normalize, generateNGrams, scoreNGrams, scoreString};
-
+export default scoreString;

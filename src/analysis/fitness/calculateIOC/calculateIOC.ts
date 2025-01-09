@@ -1,6 +1,4 @@
-/**
- * Calculate Index of coincedence 
- * */
+/**Calculate how many tiess a word occurs. */
 const countFrequencies = (text: string):Map<string, number> => {
     // Count frequency of each character using Map
     const frequencies = new Map<string, number>();
@@ -10,6 +8,9 @@ const countFrequencies = (text: string):Map<string, number> => {
     return frequencies;
 }
 
+/**
+ * Calculate Index of coincedence 
+ * */
 function calculateIOC(text: string): number {
     const n = text.length;
     if (n <= 1) throw new Error('Input string is empty.')

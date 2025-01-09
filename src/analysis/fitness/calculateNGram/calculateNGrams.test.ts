@@ -1,4 +1,4 @@
-import {readTextFromFile, normalize, scoreNGrams, scoreString} from './generateNGrams';
+import {readTextFromFile, normalize, scoreNGrams, scoreString} from './calculateNGrams';
 import {it, expect, describe } from 'vitest';
 import { bigram } from 'n-gram';
 
@@ -11,15 +11,16 @@ it('normalizes corpus test', async ()=> {
     const text = `1	$8mrd echt kapitaal als verliezen op obligaties tellen.
 2	€1,25 extra als ze ook een toetje en een flesje water willen.
 3	€ 1 voor een postzegel met die kop van Willem A. erop en dan pas na een week te horen krijgen dat je kaartje bezorgd is?`
-    const target = "MRDECHTKAPITAALALSVERLIEZENOPOBLIGATIESTELLENEXTRAALSZEOOKEENTOETJEENEENFLESJEWATERWILLENVOOREENPOSTZEGELMETDIEKOPVANWILLEMAEROPENDANPASNAEENWEEKTEHORENKRIJGENDATJEKAARTJEBEZORGDIS";
+    const target = "mrdechtkapitaalalsverliezenopobligatiestellenextraalszeookeentoetjeeneenflesjewaterwillenvooreenpostzegelmetdiekopvanwillemaeropendanpasnaeenweektehorenkrijgendatjekaartjebezorgdis";
     const normalized = await normalize(text.substring(0,243));
     expect(normalized).toBe(target);
 });
 
 it('score nGrams', async () => {
-    const text = "MRDECHTKAPITAALALSVERLIEZENOPOBLIGATIESTELLENEXTRAALSZEOOKEENTOETJEENEENFLESJEWATERWILLENVOOREENPOSTZEGELMETDIEKOPVANWILLEMAEROPENDANPASNAEENWEEKTEHORENKRIJGENDATJEKAARTJEBEZORGDIS";
+    const text = "mrdechtkapitaalalsverliezenopobligatiestellenextraalszeookeentoetjeeneenflesjewaterwillenvooreenpostzegelmetdiekopvanwillemaeropendanpasnaeenweektehorenkrijgendatjekaartjebezorgdis";
     const biGram = bigram(text);
     const nGrams = await scoreNGrams(biGram);
+    // console.log(nGrams)
     expect(nGrams).toBeDefined();
 });
 
@@ -35,7 +36,7 @@ describe('scores nGrams correctly', () => {
         const score2 = await scoreString(middle, type);
         const score3 = await scoreString(random, type);
     
-        console.log({score1, score2, score3})
+        // console.log({score1, score2, score3})
         const order = score1 > score2 && score2 > score3;
         expect(order).toBe(true);
     });
@@ -47,7 +48,7 @@ describe('scores nGrams correctly', () => {
         const score2 = await scoreString(middle, type);
         const score3 = await scoreString(random, type);
     
-        console.log({score1, score2, score3})
+        // console.log({score1, score2, score3})
         const order = score1 > score2 && score2 > score3;
         expect(order).toBe(true);
     });
@@ -59,7 +60,7 @@ describe('scores nGrams correctly', () => {
         const score2 = await scoreString(middle, type);
         const score3 = await scoreString(random, type);
     
-        console.log({score1, score2, score3})
+        // console.log({score1, score2, score3})
         const order = score1 > score2 && score2 > score3;
         expect(order).toBe(true);
     });

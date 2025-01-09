@@ -3,7 +3,7 @@ import Rotor from './classes/Rotor/Rotor';
 import generatePlugCombinations from './analysis/generatepPlugboards/generatePlugboards.js';
 import {logToCSV, markDiffs} from './lib/Logger';
 import calculateIOC, {countFrequencies} from './analysis/fitness/calculateIOC/calculateIOC';
-import { scoreString } from './analysis/generateNGrams/generateNGrams';
+import { scoreString } from './analysis/fitness/calculateNGram/calculateNGrams';
 import { keymap, reflector, operations } from './config';
 
 console.log('Initiating...')
