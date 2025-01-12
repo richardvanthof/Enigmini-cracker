@@ -1,16 +1,8 @@
 import * as fs from 'fs';
 import { bigram, trigram, nGram } from 'n-gram';
 
-const readTextFromFile = async (filePath: string): Promise<string> => {
-    try {
-        return fs.readFileSync(filePath, 'utf8');
-    } catch (err) {
-        console.error(`Error reading file from disk: ${err}`);
-        return '';
-    }
-};
 
-const normalize = async (text: string): Promise<string> => {
+const normalizeSource = async (text: string): Promise<string> => {
     const normalized = text.toLowerCase()
         .split('\n')
         .map(line => line.replace(/^\d+\t/, ''))
@@ -23,7 +15,7 @@ const normalize = async (text: string): Promise<string> => {
 }
 
 /**Figure out for each nGram how likely it is to occur in the source text corpus.*/
-const scoreNGrams = (ngramsList: string[]): Map<string, number> => {
+const scoreNGram = (ngramsList: string[]): Map<string, number> => {
     const occurences = ngramsList.reduce((acc, ngram) => {
         acc.set(ngram, (acc.get(ngram) || 0) + 1);
         return acc;
@@ -45,44 +37,43 @@ interface NGrams {
     quad: Map<string,number>,
 }
 
-const generateNGrams = async (sourceDataPath: string):Promise<NGrams> => {
-    let text = await readTextFromFile(sourceDataPath)
-    const normalized = await normalize(text);
+const generateNGram = async ( sourceText: string, type: 'bigram'|'trigram'|'quadgram'):Promise<Map<string, number>> => {
+    const normalized = await normalizeSource(sourceText);
     
-    const ngrams = {
-        bi: bigram(normalized),
-        tri: trigram(normalized),
-        quad: nGram(4)(normalized)
+    let ngram;
+    	
+    switch (type.toLowerCase()) {
+        case 'bigram':
+            ngram = bigram(normalized);
+            break;
+        case 'trigram':
+            ngram = trigram(normalized);
+            break;
+        case 'quadgram':
+            ngram = nGram(4)(normalized)
+            break;
+        default:
+            throw new Error('type is invalid.')
+            break;
     }
 
-    return {
-        bi: scoreNGrams(ngrams.bi),
-        tri: scoreNGrams(ngrams.tri),
-        quad: scoreNGrams(ngrams.quad)
-    }
-}
+    return scoreNGram(ngram)
+};
 
-let nGrams:NGrams;
+const scoreString = async (text: string, nGram: Map<string,number>): Promise<number> => {
 
-const scoreString = async (text: string, type: 'bi' | 'tri' | 'quad'): Promise<number> => {
-    if (!nGrams) {
-        nGrams = await generateNGrams('src/data/corpus.txt');
-    }
-    const nGramList = nGrams[type];
     const normalizedText = text.toLowerCase();
-    
-    const nGramType = type === 'bi' ? 2 : type === 'tri' ? 3 : 4;
-    
+    const nGramLength = Array.from(nGram.keys())[0].length;
     let score = 0;
 
-    for (let i = 0; i < normalizedText.length - nGramType + 1; i++) {
-        const currentNGram = normalizedText.slice(i, i + nGramType);
-        const probability = nGramList.get(currentNGram) ?? 1 / nGramList.size;
+    for (let i = 0; i < normalizedText.length - nGramLength + 1; i++) {
+        const currentNGram = normalizedText.slice(i, i + nGramLength);
+        const probability = nGram.get(currentNGram) ?? 1 / nGram.size;
         score += Math.log(probability);
     }
 
     // Calculate min and max possible scores
-    const minScore = normalizedText.length * Math.log(1 / nGramList.size);
+    const minScore = normalizedText.length * Math.log(1 / nGram.size);
     const maxScore = 0; // log(1) is 0
 
     // Normalize the score to a value between 0 and 1
@@ -91,5 +82,5 @@ const scoreString = async (text: string, type: 'bi' | 'tri' | 'quad'): Promise<n
     return normalizedScore;
 };
 
-export {readTextFromFile, normalize, generateNGrams, scoreNGrams, scoreString};
+export {readTextFromFile, normalizeSource, generateNGram, scoreNGram, scoreString};
 export default scoreString;

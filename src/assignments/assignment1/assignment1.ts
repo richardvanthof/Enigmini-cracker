@@ -2,13 +2,10 @@ import { logToCSV } from "../../lib/Logger";
 import Rotor from "../../classes/Rotor/Rotor";
 import Enigmini from "../../classes/Enigmini/Enigmini";
 import { reflector, operations, keymap } from "../../config";
-import generatePlugCombinations from "../../analysis/generatepPlugboards/generatePlugboards";
-import score from "../../analysis/fitness/scoreFitness/scoreFirness";
-
-const assignment1 = async () => {
+import type FitnessEvaluator from "../../analysis/fitness/scoreFitness/scoreFirness";
+const assignment1 = async (evaluator: FitnessEvaluator, plugboards:number[][][]) => {
     try {
     const input = 'UCXOMDTVHMAXJCO6PKSJJ5P4Y18EMYUO2KOGDM31QXT31SEV8JH116.';
-    const plugboards = await generatePlugCombinations([1,2,3,4,5,6])
     const results:Map<string, unknown>[] = [];
     
     let bestConfig:Map<string, any> = new Map();
@@ -17,7 +14,7 @@ const assignment1 = async () => {
       const enigmini = new Enigmini(keymap, rotorConfig, reflector, plugs);
       const res = await enigmini.decrypt(input);
       
-      const fitness = await score(res);
+      const fitness = await evaluator.score(res);
 
       if(fitness > bestConfig.get('score') || !bestConfig.get('score')) {
         bestConfig = new Map([

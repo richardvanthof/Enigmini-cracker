@@ -1,23 +1,18 @@
-import * as fs from 'fs';
-
-/**Get text from a txt file */
-const readTextFromFile = async (filePath: string): Promise<string> => {
-    try {
-        return fs.readFileSync(filePath, 'utf8');
-    } catch (err) {
-        console.error(`Error reading file from disk: ${err}`);
-        return '';
-    }
-};
-
 /** Normalize the text: convert to lowercase and remove non-alphabetic characters */
 const normalize = (text: string): string => text.toLowerCase().replace(/[^a-zäöüßij\s]|[0-9]|\t/g, "").replace(/\n/g, " ");
 /** Word match score */
-const matchWords = async (text: string, listPath: string = 'src/data/nld_news_2023_10K-words.txt'):Promise<number> => {
-    let ref = await readTextFromFile(listPath);
-    if(ref.length <= 0 || !ref) {throw new Error('Word list not found.')}
-    
-    const wordList:Set<string> = new Set(normalize(ref).split(' '))
+
+const generateWordList = async (text: string):promise<Set<string>> => {
+    const wordList = normalize(text).split(' ');
+    const uniques = wordList.filter((word, index) => {
+        const firstOccurence = wordList.findIndex((w) => w === word);
+        return index === firstOccurence
+    })
+    return new Set(uniques);
+}
+
+const matchWords = async (text:string, wordList:Set<string>):Promise<number> => {
+
     const words = normalize(text).split(/\s+/);
     // console.log({words, wordList});
     const wordMatchCount = words.filter((word) => wordList.has(word)).length;
@@ -25,4 +20,5 @@ const matchWords = async (text: string, listPath: string = 'src/data/nld_news_20
     return wordMatchCount / Math.max(words.length, 1);
 };
 
+export {generateWordList};
 export default matchWords;
