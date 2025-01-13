@@ -1,3 +1,4 @@
+/**Generate all possible rotor configurations */
 const permuteConfigs = async (input: number[], output: number[]): Promise<Map<number, number>[]> => {
 
     const createRotorConfig = (input: number[], output: number[]): Map<number, number> => {
@@ -21,6 +22,14 @@ const permuteConfigs = async (input: number[], output: number[]): Promise<Map<nu
     return outputPermutations.map(permutation => createRotorConfig(input, permutation));
 }
 
+/**
+ * Calculate how many steps it takes (clockwise or counter clockwise) to go from one rotor position to another.
+ * 
+ * @param config 
+ * @returns 
+ * A map with the short amount of steps (direct distance) or the long amount of steps 
+ * (wrap around distance; since a value has to wrap from the front to the back of the list (or reverse) for this route.)
+ */
 const calculateSteps = (config: Map<number, number>) => {
     const mutations:Map<number,number> = new Map([])
     const totalPositions = 6;
@@ -38,54 +47,68 @@ const calculateSteps = (config: Map<number, number>) => {
             wrapAroundDistance *= -1;
     
         }
-        // console.log({from,to, wrapAroundDistance, directDistance, totalPositions})
-        mutations.set(directDistance, wrapAroundDistance)
+        // exclude entry if the distance equals the config length since this is just a wraparound.
+        if((Math.abs(directDistance) || Math.abs(wrapAroundDistance)) !== totalPositions) {
+            mutations.set(directDistance, wrapAroundDistance)
+        }
     });
     return mutations;
-}
+};
 
-const generateMutations = async (input: number[], configs: Map<number, number>[]):Promise<number[][]> => {
-    const mutationPossibilities = configs.map(config => calculateSteps(config));
-    // for each config: 
-    const configurations = mutationPossibilities.flatMap((config, index) => {
-        return config.map((possibilities, index) => {
-            let combinations = [];
-            // get the total number of possibilities
-            const totalPossibilities = 2^possibilities.size;
-            // for loop through each number, convert current index to binary
-            let current = new Map();
-            let counter = 0;
-            for(let c = 1; c <= totalPossibilities; c++) {
-                const binary = c.toString(2).padStart(possibilities.size, '0').split('');
+/**
+ * The next rotor position of the Enigmini is given as a mutation 
+ * (amount of steps forward/backward). 
+ * You can go to the next position via two routes (the long or the short route).
+ * this function generates all possible combinations of the short and the long route 
+ * for each possible rotor configuration.
+ * */
+const generateMutations = async (mutationPossibilities: Map<number, number>[]):Promise<number[][]> => {
 
-                binary.forEach((bit, idx) => {
-                    const [direct, wrap] = Array.from((possibilities as Map<number, number>).entries())[idx];
-                    current.set(direct, bit === '0' ? direct : wrap);
-                });
-                	
-                if(c % possibilities.size) {
-                    combinations.push(current);
-                    current = new Map();
-                    counter = 0;
-                } else {
-                    counter++
+    // map through all possible mutation possibilities for each pair within a rotor config
+    return mutationPossibilities.flatMap((rotor:Map<number, number>) => {
+        let combinations:number[][] = [];
+        
+        const totalPossibilities = 2 ** rotor.size;
+        // for loop through each number, convert current index to binary
+        let current:number[] = []
+
+        // we're using binary numbers to decide the placement of the different routes 
+        // in a combination since this is easier to calculate.
+        for(let c = 1; c <= totalPossibilities; c++) {
+            const binary = c.toString(2).padStart(rotor.size, '0').split('');
+
+            current = [];
+            binary.forEach((bit, idx) => {
+                const entry = Array.from((rotor as Map<number, number>).entries())[idx];
+                if (entry) {
+                    const [direct, wrap] = entry;
+                    current.push(bit === '0' ? direct : wrap);
                 }
-            };
-            // split binary into array
-                // each 0 becomes option 0, 1 option 1
-            // each 6th loop we will create a new map
-        })
+            });
+            combinations.push(current);
+            
+        };
+
+        return combinations;
     });
     
 } 
 
-const generateRotorVariations = async (input: number[], output: number[] = input): Promise<[number, number][][]> => {
+/**Generate all possible rotor configurations
+ * @remark
+ * this is being done in the form of a list of 'mutations': a list that tells the enigmini how many steps forward/backwards to take from a certain rotor position.
+ * this enables the algorithm to generate all the possible rotor position for a certain configuration.
+ * @public
+ */
+const generateRotorVariations = async (input: number[], output: number[] = input): Promise<number[][]> => {
     try {
         // Make sure input and output array are of equal length
         if (input.length !== output.length) { throw new Error('input and output array must be of same length.') }
     
         const configs = await permuteConfigs(input, output);
-        const mutations = await generateMutations(input, configs);
+        const mutationPossibilities = await configs.map(config => calculateSteps(config));
+        return await generateMutations(mutationPossibilities);
+
     } catch (err) {
         throw err;
     }

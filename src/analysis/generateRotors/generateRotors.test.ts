@@ -51,33 +51,11 @@ describe('generate mutation options', () => {
 
 describe('generate all options of mutation combinations', () => {
     it('generate mutations', async () =>{
-        const input = new Map([
-            [1, 5], 
-            [-4, 2]
-        ]);
-
-        const output = [
-            new Map([
-                [1, 1], 
-                [2, -4]
-
-            ]),
-            new Map([
-                [1, 1], 
-                [2, -4]
-            ]),
-            new Map([
-                [1, 1], 
-                [2, -4]
-               
-            ]),
-            new Map([
-                [1, 1], 
-                [2, 2]
-             
-            ])
+        const input = [
+            new Map([[1, -5], [-4, 2] , [3, -3]])
         ];
-
-        expect(await generateMutations([input], [1,2,3,4,5,6])).toStrictEqual(output);
+        const res = await generateMutations(input);
+         expect(res).toHaveLength(8);
+         expect(res[0]).toHaveLength(input[0].size)
     })
 })
