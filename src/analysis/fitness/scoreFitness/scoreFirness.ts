@@ -48,7 +48,7 @@ class FitnessEvaluator {
         try{
             const content = await this.getTextFromFile(path);
             const normalized = this.normalize(content);
-            this.sampleText = this.sampleText, normalized;
+            this.sampleText += normalized;
             this.wordList = await generateWordList(normalized);
             const bigram = await generateNGram(this.sampleText, 'bigram');
             const quadgram = await generateNGram(this.sampleText, 'quadgram');

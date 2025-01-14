@@ -32,7 +32,7 @@ const assignment2 = async (evaluator: FitnessEvaluator, rotors: number[][], refl
         console.log(settings);
 
         // give each pipeline step an id;
-        const steps:ArraySetting[] = pipeline.map((step, index) => step['id'] = index)
+        const steps:ArraySetting[] = pipeline.map((step, index) => ({ ...step, id: index }))
         
         const findSetting = async (pipeline: Config[], knownSettings: Map<string, any>):Promise<Map<string, any>> => {
             
@@ -47,38 +47,33 @@ const assignment2 = async (evaluator: FitnessEvaluator, rotors: number[][], refl
                 current.push({id, value: [], threshold})
             }
 
-            variations.forEach(async (variation) => {
-                
-                // get all current rotors (minus the last one) + the current variation
-                const rotors:ArraySetting[] = (type === 'rotor') ? [...currentRotors.pop(), {id, value: variation, threshold}] : bestSettings.get('rotors');
-                // todo: how should rotors be implemented?
+            if (variations) {
+                variations.forEach(async (variation: number[][]) => {
+                    // get all current rotors (minus the last one) + the current variation
+                    const rotors:ArraySetting[] = (type === 'rotor') ? [...currentRotors.pop(), {id, value: variation, threshold}] : bestSettings.get('rotors');
+                    // todo: how should rotors be implemented?
 
-                // configure enigmini with current settings
-                const rotorConfig = rotors.map(({threshold, value}) => new Rotor(value, threshold));
-                const reflector = (type === 'reflector') ? variation : bestSettings.get('reflector');
-                const enigmini = new Enigmini(bestSettings.get('keymap'), rotorConfig, reflector || undefined, bestSettings.get('plugBoard'))
-                
-                // test current configuraton
-                const cypher = bestSettings.get('cypher')
-                const res = await enigmini.decrypt(cypher)
-                const score = await evaluator.score(res);  // score variations on the chance that it is language
-
-                if(score > bestSettings.get('score')) {
-                    bestSettings
-                    .set('score', score) // add highscore to bestsettings
-                    .set('plain', res) // add best config for current elem to bestsettings
+                    // configure enigmini with current settings
+                    const rotorConfig = rotors.map(({threshold, value}) => new Rotor(value, threshold));
+                    const reflector = (type === 'reflector') ? variation : bestSettings.get('reflector');
+                    const enigmini = new Enigmini(bestSettings.get('keymap'), rotorConfig, reflector || undefined, bestSettings.get('plugBoard'))
                     
-                    const setting = bestSettings.get(type)
-                    if(Array.isArray(setting)) {
-                        // the new setting should become an element within an array
-                        const index = setting.findIndex((item:ArraySetting) => item.id === id )
-                        setting[index]['value'] = variation
-                    } else {
-                        bestSettings.set(type, variation) // add current plaintexst output to bestsettings
+                    // test current configuraton
+                    const cypher = bestSettings.get('cypher')
+                    const res = await enigmini.decrypt(cypher)
+                    const score = await evaluator.score(res);  // score variations on the chance that it is language
+
+                    if(score > bestSettings.get('score')) {
+                        bestSettings
+                        .set('score', score) // add highscore to bestsettings
+                        .set('plain', res) // add best config for current elem to bestsettings
+                        
+                        const setting = bestSettings.get(type)
                     }
-                    
-                }
-            })
+                });
+            } else {
+                console.error('Variations are undefined for step:', steps[0]);
+            }
             
             // recusively call findsetting 
             // - add the currest bestSettings as 'known settings
@@ -89,7 +84,7 @@ const assignment2 = async (evaluator: FitnessEvaluator, rotors: number[][], refl
             return bestSettings
         }
 
-        return await findSetting(steps, settings)
+        return await findSetting(pipeline, settings)
         
     }
     
@@ -97,8 +92,8 @@ const assignment2 = async (evaluator: FitnessEvaluator, rotors: number[][], refl
     const input = '0ULW2BHR3SJALF5P2FWCYONLHPFW7YZN84UPQWNKMTYIEYTYN2QE63SJBLFV6SQE9Y27E2';
     
     const pipeline:Config[] = [
-        {type: 'rotor', threshold: 1, variations: rotors},
-        {type: 'rotor',threshold: 6, variations: rotors},
+        {type: 'rotor', threshold: 1, variations: [rotors]},
+        {type: 'rotor', threshold: 6, variations: [rotors]},
         {type: 'reflector', variations: reflectors}
     ]
 
