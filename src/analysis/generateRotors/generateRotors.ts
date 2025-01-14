@@ -30,29 +30,27 @@ const permuteConfigs = async (input: number[], output: number[]): Promise<Map<nu
  * A map with the short amount of steps (direct distance) or the long amount of steps 
  * (wrap around distance; since a value has to wrap from the front to the back of the list (or reverse) for this route.)
  */
-const calculateSteps = (config: Map<number, number>) => {
-    const mutations:Map<number,number> = new Map([])
+const calculateSteps = (config: Map<number, number>):number[][] => {
+    const mutations: number[][] = [];
     const totalPositions = 6;
-    // console.log(totalPositions);
-    
+
     config.forEach((to, from) => {
-    
         // Direct distance
         let directDistance = to - from;
-    
+
         // Wrap-around distance
         let wrapAroundDistance = totalPositions - Math.abs(directDistance);
-        if(directDistance > 0) {
+        if (directDistance > 0) {
             // direct: clockwise -- wrap around counter clockwise
             wrapAroundDistance *= -1;
-    
         }
         // exclude entry if the distance equals the config length since this is just a wraparound.
-        if((Math.abs(directDistance) || Math.abs(wrapAroundDistance)) !== totalPositions) {
-            mutations.set(directDistance, wrapAroundDistance)
-        }
+        mutations.push([directDistance, wrapAroundDistance]);
     });
-    return mutations;
+    
+    // Remove all combinations that contain a mutation that equals the length of the config,
+    // since this is just a roundtrip.
+    return mutations
 };
 
 /**
@@ -62,24 +60,24 @@ const calculateSteps = (config: Map<number, number>) => {
  * this function generates all possible combinations of the short and the long route 
  * for each possible rotor configuration.
  * */
-const generateMutations = async (mutationPossibilities: Map<number, number>[]):Promise<number[][]> => {
+const generateMutations = async (mutationPossibilities:number[][][]):Promise<number[][]> => {
 
     // map through all possible mutation possibilities for each pair within a rotor config
-    return mutationPossibilities.flatMap((rotor:Map<number, number>) => {
+    return mutationPossibilities.flatMap((rotor:number[][]) => {
         let combinations:number[][] = [];
         
-        const totalPossibilities = 2 ** rotor.size;
+        const totalPossibilities = 2 ** rotor.length;
         // for loop through each number, convert current index to binary
         let current:number[] = []
 
         // we're using binary numbers to decide the placement of the different routes 
         // in a combination since this is easier to calculate.
-        for(let c = 1; c <= totalPossibilities; c++) {
-            const binary = c.toString(2).padStart(rotor.size, '0').split('');
+        for(let c = 1; c < totalPossibilities; c++) {
+            const binary = c.toString(2).padStart(rotor.length, '0').split('');
 
             current = [];
             binary.forEach((bit, idx) => {
-                const entry = Array.from((rotor as Map<number, number>).entries())[idx];
+                const entry = rotor[idx];
                 if (entry) {
                     const [direct, wrap] = entry;
                     current.push(bit === '0' ? direct : wrap);
@@ -106,7 +104,15 @@ const generateRotorVariations = async (input: number[], output: number[] = input
         if (input.length !== output.length) { throw new Error('input and output array must be of same length.') }
     
         const configs = await permuteConfigs(input, output);
-        const mutationPossibilities = await configs.map(config => calculateSteps(config));
+        const mutationPossibilities = configs.map((config) => {
+
+            // get all operations.
+            const operations:number[][] = calculateSteps(config)
+
+            // make sure that none of the values in a rotor config are the length of the rotor config since 
+            // this would just equal a movement of 0.
+            return operations.filter(rotor => rotor.some(val => Math.abs(val) !== input.length))
+        });
         return await generateMutations(mutationPossibilities);
 
     } catch (err) {
