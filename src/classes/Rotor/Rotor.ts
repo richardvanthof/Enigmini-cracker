@@ -30,7 +30,7 @@ class Rotor {
         _threshold:number=1
     ) {
         if(_threshold < 1) {throw new Error('Threshold cannot be smaller than 1.')}
-        if(!_operations) {throw new Error('Operations config not defined.')}
+        if(!_operations || _operations.length <= 0) {throw new Error(`"${JSON.stringify(_operations)}" is not a valid rotor config.`)}
 
         this.counter = 0;
         this.position = 1;
@@ -95,6 +95,7 @@ class Rotor {
 
         /**Get current rotor mapping */
         const mapping = this.mappings[this.position - 1];
+        if(!mapping) {throw new Error(`Mapping for rotor position ${this.position} not found. The rotor config might be invalid.`)}
         
         /**find correct valuepair for the input */
         const selected = mapping.find(([inputValue, outputValue]) => {
