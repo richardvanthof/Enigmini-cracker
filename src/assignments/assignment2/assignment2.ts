@@ -9,7 +9,7 @@ const assignment2 = async (evaluator: FitnessEvaluator, rotors: number[][], refl
     type Config = {
         type: 'reflector'|'rotor',
         threshold?: number,
-        variations: number[][][],
+        variations: number[][][]|number[][],
         id?: number
     }
 
@@ -25,66 +25,69 @@ const assignment2 = async (evaluator: FitnessEvaluator, rotors: number[][], refl
         [key: string]: any
     }
 
-    const findSettings = async (pipeline:Config[],knownSettings:KnownSettings) => {
-        /**turn known settings into a map (faster performance) and add extra settings*/
-        const settings = new Map<string, any>(Object.keys(knownSettings).map((key) => [key, (knownSettings as any)[key]]))
-        settings.set('score', 0).set('plain', '').set('rotors', []);
-        console.log(settings);
-
-        // give each pipeline step an id;
-        const steps:ArraySetting[] = pipeline.map((step, index) => ({ ...step, id: index }))
+    const findSettings = async (pipeline:Config[],knownSettings:KnownSettings):Promise<Map<string, any>> => {
         
-        const findSetting = async (pipeline: Config[], knownSettings: Map<string, any>):Promise<Map<string, any>> => {
             
-            // best settings found in this step
-            let bestSettings = knownSettings; 
-            const currentRotors = bestSettings.get('rotors');
-            const {type, threshold, variations, id} = steps[0];
+        // known settings' is turned into a map for faster performance.
+        const bestSettings = new Map<string, any>(Object.keys(knownSettings).map((key) => [key, (knownSettings as any)[key]]))
+        
+        // add entries for unknown settings
+        bestSettings.set('score', 0).set('plain', '').set('rotors', []);
+        
+        // find best configuration for each unknown setting
+        pipeline.forEach((unknownSetting:Config, idx: number) => {
 
+            const {type, threshold, variations} = unknownSetting;
+            
+            // if we're looking for a rotor, add new rotor placeholder to bestSettings
             if(type === 'rotor') {
-                // add new rotor placeholder to bestSettings
-                let current:ArraySetting = bestSettings.get('rotors');
-                current.push({id, value: [], threshold})
-            }
+                let current:ArraySetting[] = bestSettings.get('rotors');
+                current.push({id: idx, value: [], threshold});
+                bestSettings.set('rotors', current);
+            };
 
-            if (variations) {
-                variations.forEach(async (variation: number[][]) => {
+            // run the decyyption algorithm for each setting variation.
+            variations.forEach(async (variation: number[][]|number[]) => {
+                
+                let rotors: ArraySetting[] = [];
+                
+                // Create rotor configuration based on known rotors and new variation.
+                if(type === 'rotor') {
+                   
                     // get all current rotors (minus the last one) + the current variation
-                    const rotors:ArraySetting[] = (type === 'rotor') ? [...currentRotors.pop(), {id, value: variation, threshold}] : bestSettings.get('rotors');
-                    // todo: how should rotors be implemented?
+                    const knownRotors:ArraySetting[] = bestSettings.get('rotors').slice(0, -1);
+                    rotors = [...knownRotors, {id: idx, value: variation, threshold}]
+                } else {
+                    rotors = bestSettings.get('rotors')
+                }
 
-                    // configure enigmini with current settings
-                    const rotorConfig = rotors.map(({threshold, value}) => new Rotor(value, threshold));
-                    const reflector = (type === 'reflector') ? variation : bestSettings.get('reflector');
-                    const enigmini = new Enigmini(bestSettings.get('keymap'), rotorConfig, reflector || undefined, bestSettings.get('plugBoard'))
+                // configure enigmini with current settings
+                const rotorConfig = rotors.map(({threshold, value}) => new Rotor(value, threshold));
+                const reflector = (type === 'reflector') ? variation : bestSettings.get('reflector');
+                const enigmini = new Enigmini(bestSettings.get('keymap'), rotorConfig, reflector || undefined, bestSettings.get('plugBoard'))
+                
+                // test current configuraton
+                const cypher = bestSettings.get('cypher')
+                const res = await enigmini.decrypt(cypher)
+                const score = await evaluator.score(res);  // score variations on the chance that it is language
+
+                if(score > bestSettings.get('score')) {
+                    bestSettings
+                    .set('score', score) // add highscore to bestsettings
+                    .set('plain', res) // add best config for current elem to bestsettings
                     
-                    // test current configuraton
-                    const cypher = bestSettings.get('cypher')
-                    const res = await enigmini.decrypt(cypher)
-                    const score = await evaluator.score(res);  // score variations on the chance that it is language
+                    const setting = bestSettings.get(type)
+                    if(Array.isArray(setting)) {
 
-                    if(score > bestSettings.get('score')) {
+                    } else {
                         bestSettings
-                        .set('score', score) // add highscore to bestsettings
-                        .set('plain', res) // add best config for current elem to bestsettings
-                        
-                        const setting = bestSettings.get(type)
                     }
-                });
-            } else {
-                console.error('Variations are undefined for step:', steps[0]);
-            }
-            
-            // recusively call findsetting 
-            // - add the currest bestSettings as 'known settings
-            // - add the remainder of the pipeline to the findsettings function
-            const theRest = pipeline.slice(1);
-            bestSettings = await findSetting(theRest, bestSettings)
-            // return bestsettings map0 when done
-            return bestSettings
-        }
+                }
+            });
+        });
+    
 
-        return await findSetting(pipeline, settings)
+        return bestSettings;
         
     }
     
@@ -92,8 +95,8 @@ const assignment2 = async (evaluator: FitnessEvaluator, rotors: number[][], refl
     const input = '0ULW2BHR3SJALF5P2FWCYONLHPFW7YZN84UPQWNKMTYIEYTYN2QE63SJBLFV6SQE9Y27E2';
     
     const pipeline:Config[] = [
-        {type: 'rotor', threshold: 1, variations: [rotors]},
-        {type: 'rotor', threshold: 6, variations: [rotors]},
+        {type: 'rotor', threshold: 1, variations: rotors},
+        {type: 'rotor', threshold: 6, variations: rotors},
         {type: 'reflector', variations: reflectors}
     ]
 
