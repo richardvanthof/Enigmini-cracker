@@ -33,7 +33,7 @@ const permuteConfigs = async (input: number[], output: number[]): Promise<Map<nu
 const calculateSteps = (config: Map<number, number>) => {
     const mutations:Map<number,number> = new Map([])
     const totalPositions = 6;
-    console.log(totalPositions);
+    // console.log(totalPositions);
     
     config.forEach((to, from) => {
     

@@ -3,56 +3,115 @@ import Enigmini from "../../classes/Enigmini/Enigmini";
 import { keymap } from "../../config";
 import type FitnessEvaluator from "../../analysis/fitness/scoreFitness/scoreFirness";
 
-
-
-
-
-
-const assignment2 = async (evaluator: FitnessEvaluator, rotors: number[][][], reflectors: number[][][]):Promise<number> => {
-    type RotorVariations = {
-        type: 'rotor',
-        allSettings: number[][],
-        threshold: number = 1
-    };
+const assignment2 = async (evaluator: FitnessEvaluator, rotors: number[][], reflectors: number[][][]):Promise<any> => {
     
-    type ReflectorVariations = {
-        type: 'reflector',
-        allSettings: number[][][]
+    
+    type Config = {
+        type: 'reflector'|'rotor',
+        threshold?: number,
+        variations: number[][][],
+        id?: number
     }
 
-    
+    type KnownSettings = {
+        cypher: string,
+        plugBoard: number[][],
+        keymap: (string|string[])[][]
+    }
 
-    const findSetting = (cypher:string, variations:RotorVariations|ReflectorVariations,) => {
+    type ArraySetting = {
+        id: number,
+        value: any,
+        [key: string]: any
+    }
 
-        let highScore = 0
-        variations.forEach(variation => {
-            const rotorConfig = [new Rotor(operations.rotor1, 6)];
-            const enigmini = new Enigmini(keymap, rotorConfig, reflector,);
-            const result = await enigmini.decrypt(cypher);
-            const score = await evaluator.score(result);
+    const findSettings = async (pipeline:Config[],knownSettings:KnownSettings) => {
+        /**turn known settings into a map (faster performance) and add extra settings*/
+        const settings = new Map<string, any>(Object.keys(knownSettings).map((key) => [key, (knownSettings as any)[key]]))
+        settings.set('score', 0).set('plain', '').set('rotors', []);
+        console.log(settings);
 
-            if(score > highScore) {
-                highScore = score;
-                // add output and curent setting to current config.
+        // give each pipeline step an id;
+        const steps:ArraySetting[] = pipeline.map((step, index) => step['id'] = index)
+        
+        const findSetting = async (pipeline: Config[], knownSettings: Map<string, any>):Promise<Map<string, any>> => {
+            
+            // best settings found in this step
+            let bestSettings = knownSettings; 
+            const currentRotors = bestSettings.get('rotors');
+            const {type, threshold, variations, id} = steps[0];
+
+            if(type === 'rotor') {
+                // add new rotor placeholder to bestSettings
+                let current:ArraySetting = bestSettings.get('rotors');
+                current.push({id, value: [], threshold})
             }
 
-            rotorConfig = [], enigmini = null
-        })
+            variations.forEach(async (variation) => {
+                
+                // get all current rotors (minus the last one) + the current variation
+                const rotors:ArraySetting[] = (type === 'rotor') ? [...currentRotors.pop(), {id, value: variation, threshold}] : bestSettings.get('rotors');
+                // todo: how should rotors be implemented?
 
+                // configure enigmini with current settings
+                const rotorConfig = rotors.map(({threshold, value}) => new Rotor(value, threshold));
+                const reflector = (type === 'reflector') ? variation : bestSettings.get('reflector');
+                const enigmini = new Enigmini(bestSettings.get('keymap'), rotorConfig, reflector || undefined, bestSettings.get('plugBoard'))
+                
+                // test current configuraton
+                const cypher = bestSettings.get('cypher')
+                const res = await enigmini.decrypt(cypher)
+                const score = await evaluator.score(res);  // score variations on the chance that it is language
+
+                if(score > bestSettings.get('score')) {
+                    bestSettings
+                    .set('score', score) // add highscore to bestsettings
+                    .set('plain', res) // add best config for current elem to bestsettings
+                    
+                    const setting = bestSettings.get(type)
+                    if(Array.isArray(setting)) {
+                        // the new setting should become an element within an array
+                        const index = setting.findIndex((item:ArraySetting) => item.id === id )
+                        setting[index]['value'] = variation
+                    } else {
+                        bestSettings.set(type, variation) // add current plaintexst output to bestsettings
+                    }
+                    
+                }
+            })
+            
+            // recusively call findsetting 
+            // - add the currest bestSettings as 'known settings
+            // - add the remainder of the pipeline to the findsettings function
+            const theRest = pipeline.slice(1);
+            bestSettings = await findSetting(theRest, bestSettings)
+            // return bestsettings map0 when done
+            return bestSettings
+        }
+
+        return await findSetting(steps, settings)
         
     }
     
     const plugs = [[1,4],[2,3],[5,6]];
     const input = '0ULW2BHR3SJALF5P2FWCYONLHPFW7YZN84UPQWNKMTYIEYTYN2QE63SJBLFV6SQE9Y27E2';
-    const knownSettings:Map<string, unknown|unknown[][]> = new Map([
-        ['keymap',keymap],
-        ['plugboard', plugs],
-        ['cypher', input]
-    ])
-
     
+    const pipeline:Config[] = [
+        {type: 'rotor', threshold: 1, variations: rotors},
+        {type: 'rotor',threshold: 6, variations: rotors},
+        {type: 'reflector', variations: reflectors}
+    ]
 
-    return 
+    const knownSettings:KnownSettings = {
+        cypher: input,
+        plugBoard: plugs,
+        keymap,
+    }
+
+    return await findSettings(pipeline, knownSettings);
+
+
+
 }
 
 export default assignment2;
