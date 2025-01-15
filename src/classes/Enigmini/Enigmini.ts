@@ -164,7 +164,7 @@ class Enigmini {
           else { return input}
         } else {
           const index = map.findIndex((val) => value == (direction == 'REVERSE' ? val[1] : val[0]));
-          if (index === -1) { throw new Error(`Value ${value} not found in map!`) }
+          if (index === -1) { throw new Error(`Value '${value}' cannot be remapped since this value does not exist in the mapping config!`) }
           return direction == 'REVERSE' ? map[index][0] : map[index][1];
         }
       }
