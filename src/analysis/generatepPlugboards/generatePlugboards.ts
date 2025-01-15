@@ -33,8 +33,7 @@ async function generatePlugCombinations(numbers: number[], allPlugsUsed: boolean
       }
     }
   }
-
-  console.log('Generating all possible value pair combinations...')
+  
   // Generate all possible pairs
   const pairs: number[][] = getPairs(numbers);
 
