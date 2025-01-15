@@ -1,36 +1,25 @@
-import * as fs from 'fs';
+import {mkdir, writeFile, appendFile} from 'fs/promises';
+import { existsSync, mkdirSync} from 'fs';
+import path from 'path';
 
-let entries:any[] = [];
+const saveToFile = async (filePath: string, content: string, type: 'overwrite'|'append' = 'overwrite') => {
+    // Ensure the directory exists
+    const folder = path.dirname(filePath);
+    try {
+        // Check if the directory exists, and create it if it doesn't
+        await mkdir(folder, { recursive: true });
 
-// class Logger {
-//     constructor() {
-//         this.rows = [];
-//         this.entry = new Map();
-//     };
-
-//     addEntry(key, value) {
-//         this.addEntry.set(key, value);
-//     }
-
-//     add
-// }
-
-const log = (_value: unknown) => {
-    let value = _value;
-
-   // console.log(value);
-
-    if(typeof value === 'object') {
-        value = JSON.stringify(value)
+        // Write content to the file
+        if(type === 'overwrite') {
+            await writeFile(filePath, content + '\n');
+        } else {
+            await appendFile(filePath, content + '\n')
+        }
+        // console.log('Content successfully written to file');
+    } catch (err) {
+        console.error('Failed to write to log file:', err);
     }
-    entries.push(value);
 };
-
-const saveToFile = async (path: string) => {
-    await fs.writeFile(path, entries.join('\n'), (err) => {
-        if(err) {console.error('Failed to write to log file', err)}
-    })
-}
 
 type Diff = {
     ref: string,
@@ -67,7 +56,7 @@ const markDiffs = (_value: string, _ref: string):Diff => {
 };
 
 // Function to convert the list of maps to CSV format
-const logToCSV = async (entries:Map<string, unknown>[], file:string):string => {
+const logToCSV = async (entries:Map<string, unknown>[], filePath:string):string => {
     
     if (entries.length === 0) {
         throw Error('List of maps is empty');
@@ -78,18 +67,24 @@ const logToCSV = async (entries:Map<string, unknown>[], file:string):string => {
 
     // Create the CSV rows
     const rows = entries.map(map => {
-    return headers.map(header => map.get(header)).join('|');
+        return headers.map(header => map.get(header)).join('|');
     });
 
     // Combine headers and rows into a full CSV string
     const csv = [headers.join('|'), ...rows].join('\n');
 
-    // Optionally write the CSV data to a file
-    await fs.writeFileSync(file, csv);
+    // Ensure the directory exists
+    const folder = path.dirname(filePath)
+    if (!existsSync(folder)) {
+        mkdirSync(folder, { recursive: true });
+    }
+
+    // Write the CSV data to a file
+    await writeFile(filePath, csv);
 
     return csv;
 }
 
 export {saveToFile, markDiffs, logToCSV}
 
-export default log;
+export default saveToFile;
