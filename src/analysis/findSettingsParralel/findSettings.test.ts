@@ -1,6 +1,6 @@
 import { vi, it, describe, expect } from 'vitest';
-import { createSettingStore } from './findSettings';
-import type { KnownSettings } from './findSettings';
+import { createSettingStore } from './findSettingsParralel';
+import type { KnownSettings } from './findSettingsParralel';
 
 describe('creates setting store', () => {
     it('creates store', () => {
@@ -13,14 +13,14 @@ describe('creates setting store', () => {
             ],
         };
 
-        const target:any= new Map([
-            //@ts-nocheck
+        const target:Map<string,any>= new Map([
             ['cypher', knownSettings.cypher],
             ['plugBoard', knownSettings.plugBoard],
             ['keyMap', knownSettings.keyMap],
             ['score', 0],
             ['plain', ''],
-            ['rotors', []]
+            ['rotor', []],
+            ['reflector', []]
         ]);
 
         // Expect the result of createSettingStore to be the same as the target map
