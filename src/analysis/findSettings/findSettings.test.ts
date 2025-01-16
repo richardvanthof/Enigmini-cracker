@@ -20,7 +20,8 @@ describe('creates setting store', () => {
             ['keyMap', knownSettings.keyMap],
             ['score', 0],
             ['plain', ''],
-            ['rotors', []]
+            ['rotor', []],
+            ['reflector', []]
         ]);
 
         // Expect the result of createSettingStore to be the same as the target map
