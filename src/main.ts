@@ -18,8 +18,10 @@ try {
 
     if(!added) throw new Error('reference not added')
     
+    
     console.log('Assignment 1', await assignment1(evaluator, plugboards));
-    console.log('Assignment 2', await assignment2(evaluator, rotors, reflectors));
+    const res = await assignment2(evaluator, rotors, reflectors)
+    console.log('\n\nAssignment 2', res, '\n' ,res.get('rotor').map(({value}) => value));
 } catch (err) {
     console.error(err)
 };  
