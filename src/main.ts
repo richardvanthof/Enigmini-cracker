@@ -21,7 +21,7 @@ try {
     
     console.log('Assignment 1', await assignment1(evaluator, plugboards));
     const res = await assignment2(evaluator, rotors, reflectors)
-    console.log('\n\nAssignment 2', res, '\n' ,res.get('rotor').map(({value}) => value));
+    console.log('\n\nAssignment 2', res, '\n' ,res.get('rotor').map(({value, id}) => `rotor ${id} value: ${JSON.stringify(value)}`));
 } catch (err) {
     console.error(err)
 };  

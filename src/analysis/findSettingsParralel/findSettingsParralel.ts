@@ -30,7 +30,9 @@ const createSettingStore = (knownSettings: KnownSettings):Map<string, any> => {
     return store.set('score', 0).set('plain', '').set('rotor', []).set('reflector', []);
 };
 
-const findSettings = async (_pipeline: Config[], knownSettings: KnownSettings, evaluator:FitnessEvaluator, resetScorePerRound:boolean = false): Promise<Map<string, any>> => {
+
+// TODO: write this in a way that the for-loops are dynamically generated!!!
+const findSettings = async (_pipeline: Config[], knownSettings: KnownSettings, evaluator:FitnessEvaluator): Promise<Map<string, any>> => {
     let bestSettings:Map<string, any> = createSettingStore(knownSettings);
     let rotorPlaceholders:VariationConfig[] = [];
     const pipeline:Config[] = _pipeline.map((item, index) => {
@@ -52,8 +54,16 @@ const findSettings = async (_pipeline: Config[], knownSettings: KnownSettings, e
         for(const rotor2setting of pipeline[1].variations) {
             const rotor2 = pipeline[1]
             for (const reflectorSetting of pipeline[2].variations) {
-                const rotorConfig = [new Rotor(rotor1setting as number[], rotor1.threshold), new Rotor(rotor2setting as number[], rotor2.threshold)];
-                const enigmini = new Enigmini(bestSettings.get('keyMap'), rotorConfig, reflectorSetting as number[][], bestSettings.get('plugBoard'));
+                const rotorConfig = [
+                    new Rotor(rotor1setting as number[], rotor1.threshold), 
+                    new Rotor(rotor2setting as number[], rotor2.threshold)
+                ];
+                const enigmini = new Enigmini(
+                    bestSettings.get('keyMap'), 
+                    rotorConfig, 
+                    reflectorSetting as number[][], 
+                    bestSettings.get('plugBoard')
+                );
 
                 // Test current configuration
                 const cypher = bestSettings.get('cypher'); //cypher gets read.
