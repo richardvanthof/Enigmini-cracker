@@ -42,3 +42,4 @@ const generateRotorVariations = async (input: number[], output: number[] = input
 };
 
 export default generateRotorVariations;
+export {permuteConfigs};

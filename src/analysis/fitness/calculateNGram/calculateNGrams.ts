@@ -1,6 +1,4 @@
-import * as fs from 'fs';
 import { bigram, trigram, nGram } from 'n-gram';
-
 
 const normalizeSource = async (text: string): Promise<string> => {
     const normalized = text.toLowerCase()
@@ -30,12 +28,6 @@ const scoreNGram = (ngramsList: string[]): Map<string, number> => {
 
     return occurences;
 };
-
-interface NGrams {
-    bi: Map<string,number>,
-    tri: Map<string,number>,
-    quad: Map<string,number>,
-}
 
 const generateNGram = async ( sourceText: string, type: 'bigram'|'trigram'|'quadgram'):Promise<Map<string, number>> => {
     const normalized = await normalizeSource(sourceText);
@@ -82,5 +74,5 @@ const scoreString = async (text: string, nGram: Map<string,number>): Promise<num
     return normalizedScore;
 };
 
-export {readTextFromFile, normalizeSource, generateNGram, scoreNGram, scoreString};
+export {normalizeSource, generateNGram, scoreNGram, scoreString};
 export default scoreString;

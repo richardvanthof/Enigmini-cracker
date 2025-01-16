@@ -1,4 +1,4 @@
-import generateRotorVariations, {permuteConfigs, calculateSteps, generateMutations} from "./generateRotors";
+import generateRotorVariations, {permuteConfigs} from "./generateRotors";
 import {expect, it, describe} from 'vitest';
 
 describe('checks input', () => {
@@ -23,39 +23,18 @@ describe('generates permutations', () => {
         expect(permutations).toHaveLength(6);
         expect(permutations).toStrictEqual(target);
     });
-})
 
-describe('generate mutation options', () => {
-    it('calculates steps to next rotor position', () => {
-        const input = new Map([
-            [1,2], 
-            [5,1],
-            [3,4],
-            [2,6], 
-            [6,3],
-            [5,1]
-        ]);
-
-        const output = new Map([
-            [1, 5], 
-            [-4, 2],
-            [1, -5],
-            [4, -2], 
-            [-3, 3],
-            [-4, 2],
-        ]);
-
-        expect(calculateSteps(input)).toStrictEqual(output);
-    });
-});
-
-describe('generate all options of mutation combinations', () => {
-    it('generate mutations', async () =>{
-        const input = [
-            new Map([[1, -5], [-4, 2] , [3, -3]])
+    it('generates the correct operations from rotor permutations.', async ()=> {
+        const permutations = await generateRotorVariations([1,2,3]);
+        const target = [
+            [0, 0, 0],
+            [0, 1, -1],
+            [1, -1, 0],
+            [1, 1, -2],
+            [2, -1,-1],
+            [2, 0, -2]
         ];
-        const res = await generateMutations(input);
-         expect(res).toHaveLength(8);
-         expect(res[0]).toHaveLength(input[0].size)
+
+        expect(permutations).toStrictEqual(target);
     })
-})
+});

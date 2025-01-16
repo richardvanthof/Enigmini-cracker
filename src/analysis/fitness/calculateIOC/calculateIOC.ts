@@ -1,4 +1,4 @@
-/**Calculate how many tiess a word occurs. */
+/**Calculate how many times a word occurs. */
 const countFrequencies = (text: string):Map<string, number> => {
     // Count frequency of each character using Map
     const frequencies = new Map<string, number>();

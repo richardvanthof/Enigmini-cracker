@@ -31,18 +31,25 @@ const createSettingStore = (knownSettings: KnownSettings):Map<string, any> => {
     return store.set('score', 0).set('plain', '').set('rotor', []).set('reflector', []);
 };
 
-const findSettings = async (_pipeline: Config[], knownSettings: KnownSettings, evaluator:FitnessEvaluator, resetScorePerRound:boolean = false): Promise<Map<string, any>> => {
+const findSettings = async (
+    _pipeline: Config[], 
+    knownSettings: KnownSettings, 
+    evaluator:FitnessEvaluator, 
+    resetScorePerRound:boolean = false
+): Promise<Map<string, any>> => {
     let bestSettings:Map<string, any> = createSettingStore(knownSettings);
+    
+
+    /**make sure that unknown rotors contain a placeholder using a random 
+    config to ensure that the enigmini always has n amount of rotors.*/
     let rotorPlaceholders:VariationConfig[] = [];
     const pipeline:Config[] = _pipeline.map((item, index) => {
-
-        // make sure that unknown rotors contain a placeholder using a random config to ensure consistent functioning of the algorithm.
-        
         if(item.type === 'rotor') {
             rotorPlaceholders.push({id: index, value: tempStandardRotor, threshold: item.threshold})
             bestSettings.set('rotor', rotorPlaceholders);
         }
         return {
+            // if current placeholder-item is not a 'rotor: just add an ID and return it.
             ...item,
             id: index
         }
@@ -55,10 +62,9 @@ const findSettings = async (_pipeline: Config[], knownSettings: KnownSettings, e
 
         resetScorePerRound && bestSettings.set('score', 0)
         // const rotorconfig = bestSettings.get('rotor')
-        //console.log(bestSettings, rotorconfig.forEach(({id, value}) => console.log({id, value: JSON.stringify(value)})));
+        // console.log(bestSettings, rotorconfig.forEach(({id, value}) => console.log({id, value: JSON.stringify(value)})));
         for(const variation of variations) {
 
-            // if type == rotors: crea
             let rotorsConfigs:VariationConfig[] = bestSettings.get('rotor');
             if(type === 'rotor') {
                 // find the slot for the current rotor and change the configuration to the current variant,
@@ -71,17 +77,12 @@ const findSettings = async (_pipeline: Config[], knownSettings: KnownSettings, e
             }
 
             // Configure Enigmini with current settings
-            // const rotorConfig: Rotor[] = rotors.map(({ threshold, value }) => new Rotor(value as number[], threshold as number));
             const rotors: Rotor[] = rotorsConfigs.map((r) => {
                 if(!r.threshold || !r.value) {throw new Error('rotor operations and threshold are not defined.')}
                 return new Rotor(r.value, r.threshold)
             });
 
-            // console.log(rotorConfig)
-
-            // TODO: check if rotor configs are properly added to new Rotor instances.
-
-            // await saveToFile('logs/rotorConfigs.txt', JSON.stringify(rotorConfig), 'append'); 
+           
             let reflector:number[][] = [];
             if(type === 'reflector') {
                 reflector = variation as number[][];
