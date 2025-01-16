@@ -11,15 +11,15 @@ await assignment0();
 try {
     // generate Dutch language references
     const evaluator = new FitnessEvaluator();
-    const added = await evaluator.addReference('/root/git/enigmini/src/data/corpus.txt');
+    const added = await evaluator.addReference('src/data/corpus.txt');
     const rotors = await generateRotors([1,2,3,4,5,6]);
     const plugboards = await generatePlugCombinations([1,2,3,4,5,6]);
     const reflectors = await generatePlugCombinations([1,2,3,4,5,6], true);
 
     if(!added) throw new Error('reference not added')
     
-    console.log({assignment1: await assignment1(evaluator, plugboards)});
-    console.log({assignment2: await assignment2(evaluator, rotors, reflectors)});
+    console.log('Assignment 1', await assignment1(evaluator, plugboards));
+    console.log('Assignment 2', await assignment2(evaluator, rotors, reflectors));
 } catch (err) {
     console.error(err)
 };  

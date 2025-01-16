@@ -224,7 +224,7 @@ class Enigmini {
 
         // 3. apply reflector
         if(this.reflector) {
-          const reflected = this.remapValue(result, this.reflector); // apply reflector
+          const reflected = this.remapValue(result, this.reflector, 'SYMMETRIC'); // apply reflector
           
           if(typeof reflected === 'number') {
             result = reflected
