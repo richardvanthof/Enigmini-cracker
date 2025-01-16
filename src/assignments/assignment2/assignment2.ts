@@ -1,6 +1,6 @@
 import { keymap } from "../../config";
 import type FitnessEvaluator from "../../analysis/fitness/scoreFitness/scoreFirness";
-import findSettings from '../../analysis/findSettings/findSettings';
+import findSettings from '../../analysis/findSettingsParralel/findSettingsParralel';
 import type { KnownSettings, Config } from "../../analysis/findSettings/findSettings";
 const assignment2 = async (evaluator: FitnessEvaluator, rotors: number[][], reflectors: number[][][]):Promise<any> => {
     
