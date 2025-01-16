@@ -19,7 +19,7 @@ const assignment2 = async (evaluator: FitnessEvaluator, rotors: number[][], refl
         keyMap: keymap,
     };
 
-    return await findSettings(pipeline, knownSettings, evaluator);
+    return await findSettings(pipeline, knownSettings, evaluator, true);
 
 }
 

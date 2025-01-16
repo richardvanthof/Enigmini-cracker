@@ -31,7 +31,7 @@ const createSettingStore = (knownSettings: KnownSettings):Map<string, any> => {
     return store.set('score', 0).set('plain', '').set('rotor', []).set('reflector', []);
 };
 
-const findSettings = async (_pipeline: Config[], knownSettings: KnownSettings, evaluator:FitnessEvaluator ): Promise<Map<string, any>> => {
+const findSettings = async (_pipeline: Config[], knownSettings: KnownSettings, evaluator:FitnessEvaluator, resetScorePerRound:boolean = false): Promise<Map<string, any>> => {
     let bestSettings:Map<string, any> = createSettingStore(knownSettings);
     let rotorPlaceholders:VariationConfig[] = [];
     const pipeline:Config[] = _pipeline.map((item, index) => {
@@ -53,7 +53,8 @@ const findSettings = async (_pipeline: Config[], knownSettings: KnownSettings, e
         // unknown setting data
         const {type, threshold, variations, id}:Config = pipeline[idx];
 
-        const rotorconfig = bestSettings.get('rotor')
+        resetScorePerRound && bestSettings.set('score', 0)
+        // const rotorconfig = bestSettings.get('rotor')
         //console.log(bestSettings, rotorconfig.forEach(({id, value}) => console.log({id, value: JSON.stringify(value)})));
         for(const variation of variations) {
 
@@ -100,7 +101,7 @@ const findSettings = async (_pipeline: Config[], knownSettings: KnownSettings, e
                 
             const res = await enigmini.decrypt(cypher);
             const score = await evaluator.score(res);  // Score variations on the chance that it is language
-            console.log(res, score, variation, type);
+            // console.log(res, score, variation, type);
             // if current score is better than highscore: save the config!
             const highScore = bestSettings.get('score');
             // console.log(res, score);
