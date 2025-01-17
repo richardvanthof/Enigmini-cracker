@@ -2,7 +2,7 @@
 
 ![program](src/assets/program.png)
 
-As a programming exercise I tried to solve an assignment from the 2024 AIVD Kerstpuzzel (Chrismas puzzle) to crack cyphers for a simplified Enigma-like algorithm. This was a nice project to get started with simple encryption and combinatronics in Typescript.
+As a programming exercise I tried to solve an assignment from the 2024 AIVD Kerstpuzzel (Chrismas puzzle) to crack cyphers for a simplified Enigma-like algorithm. This was a nice challange to play with simple encryption and combinatronics in Node.js.
 
 - [View instructions (Dutch)](src/assets/KP2024+final+1.02.jpg)
 
