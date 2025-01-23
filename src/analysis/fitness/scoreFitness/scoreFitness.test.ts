@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import FitnessEvaluator from "./scoreFirness";
+import FitnessEvaluator from "./scoreFitness";
 import { fs } from 'memfs';
 
 describe('FitnessEvaluator', () => {

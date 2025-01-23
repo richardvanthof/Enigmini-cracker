@@ -2,7 +2,7 @@ import { logToCSV } from "../../lib/Logger";
 import Rotor from "../../classes/Rotor/Rotor";
 import Enigmini from "../../classes/Enigmini/Enigmini";
 import { reflector, operations, keymap } from "../../config";
-import type FitnessEvaluator from "../../analysis/fitness/scoreFitness/scoreFirness";
+import type FitnessEvaluator from "../../analysis/fitness/scoreFitness/scoreFitness";
 const assignment1 = async (evaluator: FitnessEvaluator, plugboards:number[][][]) => {
     try {
     const input = 'UCXOMDTVHMAXJCO6PKSJJ5P4Y18EMYUO2KOGDM31QXT31SEV8JH116.';

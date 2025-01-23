@@ -1,4 +1,4 @@
-import FitnessEvaluator from './analysis/fitness/scoreFitness/scoreFirness';
+import FitnessEvaluator from './analysis/fitness/scoreFitness/scoreFitness';
 import generatePlugCombinations from './analysis/generatepPlugboards/generatePlugboards';
 import generateRotors from './analysis/generateRotors/generateRotors';
 import assignment0 from './assignments/assignment0/assignment0';

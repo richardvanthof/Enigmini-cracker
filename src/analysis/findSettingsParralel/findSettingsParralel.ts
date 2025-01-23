@@ -1,6 +1,6 @@
 import Rotor from "../../classes/Rotor/Rotor";
 import Enigmini from "../../classes/Enigmini/Enigmini";
-import type FitnessEvaluator from "../fitness/scoreFitness/scoreFirness";
+import type FitnessEvaluator from "../fitness/scoreFitness/scoreFitness";
 type Config = {
     type: 'reflector'|'rotor',
     threshold?: number,

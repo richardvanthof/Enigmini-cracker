@@ -1,5 +1,5 @@
 import { keymap } from "../../config";
-import type FitnessEvaluator from "../../analysis/fitness/scoreFitness/scoreFirness";
+import type FitnessEvaluator from "../../analysis/fitness/scoreFitness/scoreFitness";
 import sequentialSearch from '../../analysis/findSettings/findSettings';
 import parralelSearch from "../../analysis/findSettingsParralel/findSettingsParralel";
 import type { KnownSettings, Config } from "../../analysis/findSettings/findSettings";
