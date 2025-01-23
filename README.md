@@ -27,13 +27,10 @@ As a programming exercise I tried to solve an assignment from the 2024 AIVD Kers
   Run unit tests.
 
 ## 📄 Assignments
-1. Given is the same configuration as the [example](src/assets/KP2024+final+1.02.jpg) but the plugboard is different. Give the title: `UCXOMDTVHMAXJCO6PKSJJ5P4Y18EMYUO2KOGDM31QXT31SEV8JH116`.
-```
-The resulting plain text is `IK KEN GEEN ANDERE LANDEN, ZELFS AL BEN IK ER GEWEEST.`
-which is a lyric from a song with the title 'Liefs uit London.'
+1. Given is the same configuration as the [example](src/assets/KP2024+final+1.02.jpg) but the plugboard is different. Give the title: `UCXOMDTVHMAXJCO6PKSJJ5P4Y18EMYUO2KOGDM31QXT31SEV8JH116`
 
-Therefore the answer is 'Liefs uit London.'
-```
+> The resulting plain text is `IK KEN GEEN ANDERE LANDEN, ZELFS AL BEN IK ER GEWEEST.` Which is a lyric from a song with the title 'Liefs uit London.' Therefore the answer is 'Liefs uit London.'
+
 2. Given is the same configuration as assignment 1 but the rotors and reflectors are different. Give the title: `0ULW2BHR3SJALF5P2FWCYONLHPFW7YZN84UPQWNKMTYIEYTYN2QE63SJBLFV6SQE9Y27E2`
 4. Given is the same configuration as assignment 2, but the keymap is different. The plugboard is empty. Give the title:
 ```
