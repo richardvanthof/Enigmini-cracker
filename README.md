@@ -28,5 +28,10 @@ As a programming exercise I tried to solve an assignment from the 2024 AIVD Kers
 
 ## 🗂️ Project structure
 
-- The assignments are situated in the `src/assignments/` folder.
-
+- `src/assignments/`: contain the assignments.
+- `src/classes/`: contain components for encyryption algorithm
+- `src/data/`: contains Dutch sample text for scoring if a string on likelyhood of containing Dutch.
+- `src/analysis: contains functions for bruteforcing the algorithm aka.:
+  -  Looping through all settings (aka. the findSettings functions)
+  -  Generating all versions of a certain setting ('generate functions)
+  -  Evaluating if a certain setting is correct and if the output contains natural language (aka. fitness functions).
