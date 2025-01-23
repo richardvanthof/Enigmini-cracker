@@ -35,3 +35,4 @@ As a programming exercise I tried to solve an assignment from the 2024 AIVD Kers
   -  Looping through all settings (aka. the findSettings functions)
   -  Generating all versions of a certain setting ('generate functions)
   -  Evaluating if a certain setting is correct and if the output contains natural language (aka. fitness functions).
+    - currently doing this using ngrams and wordlists   
