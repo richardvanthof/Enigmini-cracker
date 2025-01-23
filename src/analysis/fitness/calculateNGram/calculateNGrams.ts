@@ -1,78 +1,92 @@
 import { bigram, trigram, nGram } from 'n-gram';
 
 const normalizeSource = async (text: string): Promise<string> => {
-    const normalized = text.toLowerCase()
-        .split('\n')
-        .map(line => line.replace(/^\d+\t/, ''))
-        .join('')
-        .replace(/[^\w\s]|_/g, '') // Remove punctuation and special characters
-        .replace(/\d+/g, '') // Remove numbers
-        .replace(/\s+/g, '') // Remove spaces
-    
-    return normalized;
-}
+  if (!text) throw new Error('Input text is empty.');
+  
+  const normalized = text
+    .toLowerCase()
+    .split('\n')
+    .map(line => line.replace(/^\d+\t/, '')) // Remove leading numbers and tab
+    .join('') // Remove newlines between lines
+    .replace(/[^\w\s]|_/g, '') // Remove punctuation and special characters
+    .replace(/\d+/g, '') // Remove numbers
+    .replace(/\s+/g, ''); // Remove spaces
 
-/**Figure out for each nGram how likely it is to occur in the source text corpus.*/
+  return normalized;
+};
+
+/** Figure out for each nGram how likely it is to occur in the source text corpus. */
 const scoreNGram = (ngramsList: string[]): Map<string, number> => {
-    const occurences = ngramsList.reduce((acc, ngram) => {
-        acc.set(ngram, (acc.get(ngram) || 0) + 1);
-        return acc;
-    }, new Map<string, number>());
+  const occurences = ngramsList.reduce((acc, current) => {
+    acc.set(current, (acc.get(current) || 0) + 1);
+    return acc;
+  }, new Map<string, number>());
 
-    const totalNGrams = ngramsList.length;
+  const totalNGrams = ngramsList.length;
+  occurences.forEach((value, key) => {
+    occurences.set(key, value / totalNGrams); // Probability of each n-gram
+  });
 
-    for (const [key, value] of occurences.entries()) {
-        const probability = value / totalNGrams;
-        occurences.set(key, probability);
-    }
-
-    return occurences;
+  return occurences;
 };
 
-const generateNGram = async ( sourceText: string, type: 'bigram'|'trigram'|'quadgram'):Promise<Map<string, number>> => {
-    const normalized = await normalizeSource(sourceText);
-    
-    let ngram;
-    	
-    switch (type.toLowerCase()) {
-        case 'bigram':
-            ngram = bigram(normalized);
-            break;
-        case 'trigram':
-            ngram = trigram(normalized);
-            break;
-        case 'quadgram':
-            ngram = nGram(4)(normalized)
-            break;
-        default:
-            throw new Error('type is invalid.')
-            break;
-    }
+const generateNGram = async (
+  sourceText: string,
+  type: 'bigram' | 'trigram' | 'quadgram'
+): Promise<Map<string, number>> => {
+  const normalized = await normalizeSource(sourceText);
+  let ngram: string[];
 
-    return scoreNGram(ngram)
+  switch (type.toLowerCase()) {
+    case 'bigram':
+      ngram = bigram(normalized);
+      break;
+    case 'trigram':
+      ngram = trigram(normalized);
+      break;
+    case 'quadgram':
+      ngram = nGram(4)(normalized);
+      break;
+    default:
+      throw new Error('Invalid n-gram type.');
+  }
+
+  return scoreNGram(ngram);
 };
 
-const scoreString = async (text: string, nGram: Map<string,number>): Promise<number> => {
+const scoreString = async (
+  text: string,
+  nGramRef: Map<string, number>
+): Promise<number> => {
+  if (!text) throw new Error('Input string undefined.');
+  
+  const normalizedText = text.toLowerCase().replace(/\s+/g, '');
+  const nGramLength = Array.from(nGramRef.keys())[0].length;
+  const inputNGram: string[] = nGram(nGramLength)(normalizedText);
+  let score = 0;
 
-    const normalizedText = text.toLowerCase();
-    const nGramLength = Array.from(nGram.keys())[0].length;
-    let score = 0;
+  inputNGram.forEach((chunk) => {
+    if (chunk) {
+      const count = nGramRef.get(chunk) ?? 0;
+      const probability = count / nGramRef.size;
 
-    for (let i = 0; i < normalizedText.length - nGramLength + 1; i++) {
-        const currentNGram = normalizedText.slice(i, i + nGramLength);
-        const probability = nGram.get(currentNGram) ?? 1 / nGram.size;
+      // Only add to the score if probability > 0
+      if (probability > 0) {
         score += Math.log(probability);
+      }
     }
+  });
 
-    // Calculate min and max possible scores
-    const minScore = normalizedText.length * Math.log(1 / nGram.size);
-    const maxScore = 0; // log(1) is 0
+  // Calculate min and max possible scores
+  const minScore = normalizedText.length * Math.log(1 / nGramRef.size);
+  const maxScore = 0; // log(1) is 0
 
-    // Normalize the score to a value between 0 and 1
-    const normalizedScore = (score - minScore) / (maxScore - minScore);
+  // Normalize the score to a value between 0 and 1
+  const scoreRange = maxScore - minScore;
+  const normalizedScore = scoreRange > 0 ? (score - minScore) / scoreRange : 0;
 
-    return normalizedScore;
+  return normalizedScore;
 };
 
-export {normalizeSource, generateNGram, scoreNGram, scoreString};
+export { normalizeSource, generateNGram, scoreNGram, scoreString };
 export default scoreString;
