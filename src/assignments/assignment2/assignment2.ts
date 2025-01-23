@@ -27,9 +27,10 @@ const assignment2 = async (evaluator: FitnessEvaluator, rotors: number[][], refl
         cypher: input,
         plugBoard: plugs,
         keyMap: keymap,
-    };
+    }
+
     if(mode === 'sequencial') {
-        return await sequentialSearch(pipeline, knownSettings, evaluator, true);
+        return await sequentialSearch(pipeline, knownSettings, evaluator, false);
     } else {
         return await parralelSearch(pipeline, knownSettings, evaluator);
     };
