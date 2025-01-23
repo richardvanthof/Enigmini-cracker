@@ -79,8 +79,6 @@ const scoreString = async (
     }
   });
 
-  console.log(score)
-
   // Calculate min and max possible scores
   const minScore = normalizedText.length * Math.log(1 / nGramRef.size);
   const maxScore = 0; // log(1) is 0
