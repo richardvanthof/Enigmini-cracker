@@ -61,14 +61,16 @@ const scoreString = async (
   if (!text) throw new Error('Input string undefined.');
   
   const normalizedText = text.toLowerCase().replace(/\s+/g, '');
+
+  /**Determine if input nGram should be bigram, trigram or quadGram */
   const nGramLength = Array.from(nGramRef.keys())[0].length;
   const inputNGram: string[] = nGram(nGramLength)(normalizedText);
+  
   let score = 0;
 
   inputNGram.forEach((chunk) => {
     if (chunk) {
-      const count = nGramRef.get(chunk) ?? 0;
-      const probability = count / nGramRef.size;
+      const probability = nGramRef.get(chunk) ?? 0;
 
       // Only add to the score if probability > 0
       if (probability > 0) {
@@ -76,6 +78,8 @@ const scoreString = async (
       }
     }
   });
+
+  console.log(score)
 
   // Calculate min and max possible scores
   const minScore = normalizedText.length * Math.log(1 / nGramRef.size);
