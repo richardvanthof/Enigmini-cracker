@@ -24,7 +24,7 @@ class FitnessEvaluator {
         this.wordList = new Set();
     }
 
-    private async getTextFromFile(filePath: string) {
+    private async getTextFromFile(filePath: string):Promise<string> {
         /**Get text from a txt file */
         try {
             return await readFile(filePath, 'utf8');
@@ -84,9 +84,12 @@ class FitnessEvaluator {
         // Penalize for unlikely text lengths
         const lengthPenalty = normalizedText.length >= 10 ? 0 : -1;
 
+        
         // Combine scores
-        const fitness = 0.5 * wordMatchScore + 0.25 * biGramScore + 0.25 * quadGramScore + lengthPenalty;
-        return Math.max(fitness, 0); // Ensure fitness is non-negative
+        const score =  0.3 * quadGramScore + 0.3 * biGramScore + 0.4 * wordMatchScore + lengthPenalty;
+        // console.log({quadGramScore, biGramScore, wordMatchScore, lengthPenalty, score});
+        return score;
+        
     }
 }
 

@@ -1,7 +1,7 @@
 import Rotor from "../../classes/Rotor/Rotor";
 import Enigmini from "../../classes/Enigmini/Enigmini";
 import type FitnessEvaluator from "../fitness/scoreFitness/scoreFitness";
-import { reflector as sampleReflector, operations as sampleOperations} from "../../config";
+import { reflector as sampleReflector } from "../../config";
 type Config = {
     type: 'reflector'|'rotor',
     threshold?: number,
@@ -28,7 +28,7 @@ const createSettingStore = (knownSettings: KnownSettings):Map<string, any> => {
     const store = new Map<string, any>(Object.keys(knownSettings).map((key) => [key, (knownSettings as any)[key]]));
         
     // add entries for unknown settings
-    return store.set('score', 0).set('plain', '').set('rotor', []).set('reflector', []);
+    return store.set('score', -Infinity).set('plain', '').set('rotor', []).set('reflector', []);
 };
 
 const findSettings = async (
@@ -60,9 +60,8 @@ const findSettings = async (
         // unknown setting data
         const {type, threshold, variations, id}:Config = pipeline[idx];
 
-        resetScorePerRound && bestSettings.set('score', 0)
-        // const rotorconfig = bestSettings.get('rotor')
-        // console.log(bestSettings, rotorconfig.forEach(({id, value}) => console.log({id, value: JSON.stringify(value)})));
+        resetScorePerRound && bestSettings.set('score', -Infinity)
+
         for(const variation of variations) {
 
             let rotorsConfigs:VariationConfig[] = bestSettings.get('rotor');

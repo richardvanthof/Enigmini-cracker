@@ -11,13 +11,16 @@ const generateWordList = async (text: string):Promise<Set<string>> => {
     return new Set(uniques);
 }
 
+
 const matchWords = async (text:string, wordList:Set<string>):Promise<number> => {
 
     const words = normalize(text).split(/\s+/);
     // console.log({words, wordList});
     const wordMatchCount = words.filter((word) => wordList.has(word)).length;
-    
-    return wordMatchCount / Math.max(words.length, 1);
+    let score = Math.log(wordMatchCount / (Math.max(words.length, 1)));
+    score = Math.max(score, Math.log10(1e-6));
+    // console.log(score)
+    return score; // Log-Probability of 1e-6);
 };
 
 export {generateWordList};

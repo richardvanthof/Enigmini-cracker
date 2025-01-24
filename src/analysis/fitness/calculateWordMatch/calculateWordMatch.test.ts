@@ -11,4 +11,10 @@ describe('generate wordlist', () => {
         const target = new Set(['hallo', 'wereld', 'de', 'is', 'van', 'mij'] )
         expect(list).toStrictEqual(target);
     })
+
+    it('scores strings', async () => {
+        const text = "Hallo Werel. De wereld is van mij.";
+        const words = new Set(['hallo', 'wereld', 'de', 'is', 'van', 'mij'] );
+        expect(await matchWords(text, words)).toBe(-0.15415067982725836);
+    })
 });

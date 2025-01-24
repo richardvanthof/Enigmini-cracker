@@ -16,16 +16,23 @@ const normalizeSource = async (text: string): Promise<string> => {
 };
 
 /** Figure out for each nGram how likely it is to occur in the source text corpus. */
-const scoreNGram = (ngramsList: string[]): Map<string, number> => {
-  const occurences = ngramsList.reduce((acc, current) => {
+const scoreNGram = (ngramsList: string[], amount?: number): Map<string, number> => {
+
+  // get all unique ngrams and count their occurences
+  let occurences = ngramsList.reduce((acc, current) => {
     acc.set(current, (acc.get(current) || 0) + 1);
     return acc;
   }, new Map<string, number>());
 
+  // sort the occurences by the amount and take the top n
+  occurences = new Map([...occurences.entries()].sort((a, b) => b[1] - a[1]).slice(0, amount));
+  
   const totalNGrams = ngramsList.length;
   occurences.forEach((value, key) => {
-    occurences.set(key, value / totalNGrams); // Probability of each n-gram
+    occurences.set(key, Math.log10(value / totalNGrams)); // Log-Probability of each n-gram
   });
+  
+  // console.log(occurences)
 
   return occurences;
 };
@@ -49,7 +56,7 @@ const generateNGram = async (
       break;
     default:
       throw new Error('Invalid n-gram type.');
-  }
+  };
 
   return scoreNGram(ngram);
 };
@@ -73,20 +80,16 @@ const scoreString = async (
       const probability = nGramRef.get(chunk) ?? 0;
 
       // Only add to the score if probability > 0
-      if (probability > 0) {
-        score += Math.log(probability);
+      if (probability) {
+        score += probability;
+      } else {
+        score += Math.log10(1e-6); // Log-Probability of 1e-6
       }
     }
   });
 
-  // Calculate min and max possible scores
-  const minScore = normalizedText.length * Math.log(1 / nGramRef.size);
-  const maxScore = 0; // log(1) is 0
-
-  // Normalize the score to a value between 0 and 1
-  const scoreRange = maxScore - minScore;
-  const normalizedScore = scoreRange > 0 ? (score - minScore) / scoreRange : 0;
-
+  let normalizedScore = score / inputNGram.length;
+  // console.log(normalizedScore)
   return normalizedScore;
 };
 
