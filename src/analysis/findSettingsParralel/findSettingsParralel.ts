@@ -98,7 +98,7 @@ const findSettings = async (_pipeline: Config[], knownSettings: KnownSettings): 
     })
 
     // initialize results CSV
-    const resultsDir = path.join('results');
+    const resultsDir = path.join('results/assignment2');
     ensureDir(resultsDir);
     const outFile = path.join(resultsDir, `findSettings-${Date.now()}.csv`);
     console.log('Results CSV:', outFile);
@@ -146,6 +146,7 @@ const findSettings = async (_pipeline: Config[], knownSettings: KnownSettings): 
                 }
 
                 const highScore = bestSettings.get('score');
+                
                 if(score > highScore) {
                     bestSettings.set('score', score);
                     bestSettings.set('plain', res);
@@ -165,8 +166,12 @@ const findSettings = async (_pipeline: Config[], knownSettings: KnownSettings): 
                     console.log(counter)
                 }
                 counter++;
+                if(highScore >= 1) {
+                    return bestSettings;
+                }
             }
         }
+        
     }
 
     return bestSettings;
