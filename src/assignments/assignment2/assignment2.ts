@@ -15,7 +15,7 @@ const assignment2 = async (evaluator: FitnessEvaluator, rotors: number[][], refl
      * - `Sequential`: finds best setting per pipeline item -- effecient but a bit less accurate (ca. 1500 variations)
      * - `Parralel`: finds tries all possible settings all at once -- accurate but not at all efficient (ca. 7.776.000 variations!) 
      */
-    const mode:'sequencial'|'parralel' = 'sequencial';
+    const mode:'sequencial'|'parralel' = 'parralel';
     
     const pipeline:Config[] = [
         {type: 'rotor', threshold: 1, variations: rotors},
