@@ -31,12 +31,15 @@ As a programming exercise I tried to solve an assignment from the 2024 AIVD Kers
 > The resulting plain text is `IK KEN GEEN ANDERE LANDEN, ZELFS AL BEN IK ER GEWEEST.` Which is a lyric from a song with the title 'Liefs uit London.' Therefore the answer is 'Liefs uit London.'
 
 2. Given is the same configuration as assignment 1 but the rotors and reflectors are different. Give the title: `0ULW2BHR3SJALF5P2FWCYONLHPFW7YZN84UPQWNKMTYIEYTYN2QE63SJBLFV6SQE9Y27E2`
-4. Given is the same configuration as assignment 2, but the keymap is different. The plugboard is empty. Give the title:
+
+> The resultig plaintext is `ALS ER EEN WEDSTRIJD ZOU ZIJN VOOR FRUIT. EN ZE DEELDEN MEDAILLES UIT` which is a lyric from a song titled 'Banaan'. Therefore 'Banaan' is the answer.
+  
+3. Given is the same configuration as assignment 2, but the keymap is different. The plugboard is empty. Give the title:
 ```
 7RBNG4ACEK83YHUZLODARRHEZ3WT8URC4EC3XAQR448CW7NZK434K977B36D7ZEZRBU6PKCCXDSUC4E6QXZ7FZRVYOCEJK3N8AOTEUR44O6Q6AJH4UZ4ONAB8RUEGHEAZPULMBO7RBIQUTKW78JJCWMKWOCSH6O73YONBV644CEDABR44CDYLR7HUUEC2XS6HIU7L03NBRLJ3CCUP
 ```
 
-4. The Enigmini has been reconfigured using a new reflector and keymap and also two new rotors. The plugboard is empty. What can't be missing in this assignment? And what's the answer to the question?
+1. The Enigmini has been reconfigured using a new reflector and keymap and also two new rotors. The plugboard is empty. What can't be missing in this assignment? And what's the answer to the question?
 ```plaintext
 ## Answer format:
 Answer#1: ...
@@ -54,9 +57,3 @@ Commentary: ...
   -  Generating all versions of a certain setting ('generate functions)
   -  Evaluating if a certain setting is correct and if the output contains natural language (aka. fitness functions).
     - currently doing this using ngrams and wordlists   
-
-
-## Answers
-a. If you invert the input, divide the string into blocks of 7 (since 7-bit ascii is a valid thing) and look up what chars the incomplete ascii blocks could you get a set of characters that form 'Sushi?'
-b. The program outputted the lyric "IK KEN GEEN ANDERE LANDEN, ZELFS AL BEN IK ER GEWEEST" which is a lyric from a song called 'Liefs uit London.' Therefore this is the awnser.
-c. The program outputed the lyric "ALS ER EEN WEDSTRIJD ZOU ZIJN VOOR FRUIT. EN ZE DEELDEN MEDAILLES UIT." This is a lyric from a song titled 'Banaan.' Therefore this is the answer.
